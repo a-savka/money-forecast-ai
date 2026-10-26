@@ -38,3 +38,10 @@ def client(db):
     test_app.dependency_overrides[get_db] = lambda: db
     with TestClient(test_app) as c:
         yield c
+
+
+@pytest.fixture
+def auth(client):
+    """Заголовки авторизации пользователя с демо-профилем young."""
+    token = client.post("/auth/demo-login", json={"profile": "young"}).json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "sqlite:///./dev.db"
-    jwt_secret: str = "change-me"
+    jwt_secret: str = "dev-only-secret-change-me-in-production-0123"
     jwt_ttl_hours: int = 24 * 7
     cors_origins: str = "http://localhost:5173,capacitor://localhost,http://localhost"
 
