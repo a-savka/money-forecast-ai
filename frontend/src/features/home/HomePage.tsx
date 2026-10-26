@@ -1,4 +1,4 @@
-import { CalendarClock, ChevronRight, Lightbulb, Wallet } from 'lucide-react'
+import { CalendarClock, ChevronRight, Crown, Lightbulb, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { useAccounts } from '@/api/hooks'
@@ -10,12 +10,14 @@ import { UpcomingList } from '@/features/forecast/UpcomingList'
 import { useForecast } from '@/features/forecast/api'
 import { RecommendationCard } from '@/features/recommendations/RecommendationCard'
 import { useRecommendations } from '@/features/recommendations/api'
+import { usePlanHorizon } from '@/features/subscription/api'
 import { formatDate, formatMoney } from '@/lib/utils'
 import { useSession } from '@/store/session'
 
 export function HomePage() {
   const user = useSession((s) => s.user)
-  const forecast = useForecast('month')
+  const horizon = usePlanHorizon()
+  const forecast = useForecast(horizon)
   const { data: accounts = [] } = useAccounts()
   const f = forecast.data
   const recs = useRecommendations().data?.items ?? []
@@ -27,7 +29,7 @@ export function HomePage() {
         <h1 className="text-2xl font-bold">Ваш прогноз</h1>
       </header>
 
-      {forecast.isLoading && <PageLoader />}
+      {(forecast.isLoading || !horizon) && <PageLoader />}
       {forecast.error && <NoForecast error={forecast.error} />}
 
       {f && (
@@ -50,6 +52,18 @@ export function HomePage() {
               </div>
             </Card>
           </Link>
+
+          {horizon === 'week' && (
+            <Link to="/premium" className="block">
+              <Card className="flex items-center gap-3 border border-amber-200 bg-amber-50">
+                <Crown className="h-6 w-6 shrink-0 text-amber-500" />
+                <p className="flex-1 text-sm">
+                  <b>Прогноз на месяц</b> — узнайте заранее, хватит ли денег до зарплаты. 7 дней бесплатно.
+                </p>
+                <ChevronRight className="h-5 w-5 text-amber-500" />
+              </Card>
+            </Link>
+          )}
 
           <Card className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">

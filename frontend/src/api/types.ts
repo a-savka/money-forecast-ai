@@ -25,3 +25,5 @@ export type RecommendationsMode = 'rules' | 'llm'
 export type BacktestRun = S['BacktestRunOut']
 export type BacktestCase = S['BacktestCase']
 export type BacktestRequest = S['BacktestRequest']
+export type Subscription = S['SubscriptionOut']
+export type SubscriptionAction = S['SubscriptionAction']['action']

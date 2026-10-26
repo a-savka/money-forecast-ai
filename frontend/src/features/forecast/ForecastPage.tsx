@@ -1,6 +1,6 @@
-import { TrendingUp } from 'lucide-react'
+import { Lock, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useCategories } from '@/api/hooks'
 import type { Horizon } from '@/api/types'
@@ -15,10 +15,15 @@ import { useForecast, useStrategies } from './api'
 import { BalanceChart } from './BalanceChart'
 import { RiskBadge } from './RiskBadge'
 import { UpcomingList } from './UpcomingList'
+import { useIsPremium, usePlanHorizon } from '@/features/subscription/api'
 import { useSettings } from '@/store/settings'
 
 export function ForecastPage() {
-  const [horizon, setHorizon] = useState<Horizon>('month')
+  const navigate = useNavigate()
+  const planHorizon = usePlanHorizon()
+  const isPremium = useIsPremium()
+  const [chosen, setHorizon] = useState<Horizon>()
+  const horizon = chosen ?? planHorizon
   const forecast = useForecast(horizon)
   const strategy = useSettings((s) => s.strategy)
   const { data: strategies } = useStrategies()
@@ -34,15 +39,19 @@ export function ForecastPage() {
         {(['week', 'month'] as const).map((h) => (
           <button
             key={h}
-            onClick={() => setHorizon(h)}
-            className={cn('rounded-lg py-2 text-sm font-medium', horizon === h ? 'bg-brand-600 text-white' : 'text-slate-600')}
+            onClick={() => (h === 'month' && !isPremium ? navigate('/premium?from=forecast') : setHorizon(h))}
+            className={cn(
+              'flex items-center justify-center gap-1 rounded-lg py-2 text-sm font-medium',
+              horizon === h ? 'bg-brand-600 text-white' : 'text-slate-600',
+            )}
           >
             {h === 'week' ? 'Неделя' : 'Месяц'}
+            {h === 'month' && !isPremium && <Lock className="h-3.5 w-3.5" aria-label="Premium" />}
           </button>
         ))}
       </div>
 
-      {forecast.isLoading && <PageLoader />}
+      {(forecast.isLoading || !horizon) && <PageLoader />}
       {forecast.error && <NoForecast error={forecast.error} />}
       {f && (
         <div className="space-y-4">

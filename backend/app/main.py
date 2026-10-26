@@ -13,6 +13,7 @@ from app.api import (
     forecast,
     health,
     imports,
+    mock,
     recommendations,
 )
 from app.config import get_settings
@@ -51,6 +52,7 @@ def create_app(*, seed_on_startup: bool = True) -> FastAPI:
         forecast.router,
         recommendations.router,
         experiments.router,
+        mock.router,
         dev.router,
     ):
         app.include_router(router)

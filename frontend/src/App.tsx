@@ -12,6 +12,7 @@ import { ReceiptPage } from '@/features/import/ReceiptPage'
 import { ScreenshotPage } from '@/features/import/ScreenshotPage'
 import { RecommendationsPage } from '@/features/recommendations/RecommendationsPage'
 import { TransactionsPage } from '@/features/transactions/TransactionsPage'
+import { PremiumPage } from '@/features/subscription/PremiumPage'
 import { MorePage } from '@/pages/MorePage'
 import { useSession } from '@/store/session'
 
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="screenshot" element={<ScreenshotPage />} />
         <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="experiments" element={<ExperimentsPage />} />
+        <Route path="premium" element={<PremiumPage />} />
         <Route path="onboarding" element={<Navigate to="/transactions" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

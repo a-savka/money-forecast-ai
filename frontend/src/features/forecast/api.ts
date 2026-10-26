@@ -4,11 +4,13 @@ import { api, unwrap } from '@/api/client'
 import type { ForecastResult, Horizon, StrategyInfo } from '@/api/types'
 import { useSettings } from '@/store/settings'
 
-export function useForecast(horizon: Horizon = 'month') {
+/** Прогноз; horizon = undefined — ждём, пока станет известен тариф (Free — неделя). */
+export function useForecast(horizon: Horizon | undefined) {
   const strategy = useSettings((s) => s.strategy)
   return useQuery({
     queryKey: ['forecast', strategy, horizon],
     queryFn: () => unwrap<ForecastResult>(api.GET('/forecast', { params: { query: { strategy, horizon } } })),
+    enabled: horizon !== undefined,
     retry: false,
   })
 }

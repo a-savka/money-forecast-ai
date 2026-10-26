@@ -438,6 +438,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mock/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Subscription */
+        get: operations["get_subscription_mock_subscription_get"];
+        put?: never;
+        /** Change Subscription */
+        post: operations["change_subscription_mock_subscription_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -976,6 +994,32 @@ export interface components {
             description: string;
             /** Is Default */
             is_default: boolean;
+        };
+        /** SubscriptionAction */
+        SubscriptionAction: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "start_trial" | "upgrade" | "cancel";
+        };
+        /** SubscriptionOut */
+        SubscriptionOut: {
+            /**
+             * Plan
+             * @enum {string}
+             */
+            plan: "free" | "trial" | "premium";
+            /** Trial Until */
+            trial_until: string | null;
+            /** Trial Days Left */
+            trial_days_left: number;
+            /** Can Start Trial */
+            can_start_trial: boolean;
+            /** Price Month */
+            price_month: number;
+            /** Price Year */
+            price_year: number;
         };
         /** TokenResponse */
         TokenResponse: {
@@ -1824,7 +1868,7 @@ export interface operations {
         parameters: {
             query?: {
                 strategy?: string;
-                horizon?: "week" | "month";
+                horizon?: ("week" | "month") | null;
             };
             header?: never;
             path?: never;
@@ -1935,6 +1979,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BacktestRunOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_subscription_mock_subscription_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionOut"];
+                };
+            };
+        };
+    };
+    change_subscription_mock_subscription_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionAction"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionOut"];
                 };
             };
             /** @description Validation Error */
