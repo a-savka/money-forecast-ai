@@ -8,6 +8,7 @@ from app.api import (
     analytics,
     auth,
     dev,
+    experiments,
     finance,
     forecast,
     health,
@@ -49,6 +50,7 @@ def create_app(*, seed_on_startup: bool = True) -> FastAPI:
         analytics.router,
         forecast.router,
         recommendations.router,
+        experiments.router,
         dev.router,
     ):
         app.include_router(router)
