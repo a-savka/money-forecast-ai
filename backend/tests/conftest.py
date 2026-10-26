@@ -10,7 +10,8 @@ from sqlalchemy.pool import StaticPool
 
 import app.models  # noqa: F401
 from app.db import Base, get_db
-from app.main import app
+from app.main import create_app
+from app.services.categories import ensure_system_categories
 
 
 @pytest.fixture
@@ -26,13 +27,14 @@ def engine():
 @pytest.fixture
 def db(engine):
     session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)()
+    ensure_system_categories(session)
     yield session
     session.close()
 
 
 @pytest.fixture
 def client(db):
-    app.dependency_overrides[get_db] = lambda: db
-    with TestClient(app) as c:
+    test_app = create_app(seed_on_startup=False)
+    test_app.dependency_overrides[get_db] = lambda: db
+    with TestClient(test_app) as c:
         yield c
-    app.dependency_overrides.clear()
