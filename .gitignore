@@ -1,0 +1,35 @@
+# Env & secrets
+.env
+*.env.local
+
+# Private data (real bank statements etc.)
+data/private/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+backend/models_store/
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Capacitor / Android
+frontend/android/app/build/
+frontend/android/build/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/app/src/main/assets/public/
+*.apk
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
