@@ -13,6 +13,7 @@ from app.config import get_settings
 from app.forecasting.backtest import Dataset, StrategyReport, run_backtest
 from app.forecasting.data import history_from_synthetic
 from app.forecasting.registry import STRATEGIES
+from app.forecasting.statements import dataset_from_statements
 from app.seed.synthetic import PROFILES, generate_profile
 
 COLUMNS = [
@@ -38,15 +39,17 @@ def fmt(value, kind: str) -> str:
     return f"{value:g}"
 
 
-def markdown(reports: list[StrategyReport], datasets: list[str], months: int) -> str:
+def markdown(
+    reports: list[StrategyReport], datasets: list[str], months: int, source: str = "синтетика"
+) -> str:
     titles = {name: s.title for name, s in STRATEGIES.items()}
     cases = reports[0].metrics["cases"]
     lines = [
         "# Бэктест стратегий прогноза",
         "",
         f"Дата: {date.today().isoformat()} · LLM: `{get_settings().llm_provider}` · "
-        f"профили: {', '.join(datasets)} · отсечения: 1, 10, 20 число за {months} мес. "
-        f"· случаев на стратегию: {cases}",
+        f"данные: {source} · профили: {', '.join(datasets)} · "
+        f"отсечения: 1, 10, 20 число за {months} мес. · случаев на стратегию: {cases}",
         "",
         "Прогноз — сумма трат от даты отсечения до конца месяца; факт — реальные траты "
         "за тот же период. Меньше WAPE/MAE — лучше; покрытие интервала P10–P90 в идеале ≈ 80%.",
@@ -78,8 +81,14 @@ def markdown(reports: list[StrategyReport], datasets: list[str], months: int) ->
         f"**Лучшая по WAPE:** {titles.get(best.strategy, best.strategy)} "
         f"({fmt(best.metrics['wape'], 'pct')}).",
         "",
-        "> Синтетика — модельные данные: ML (H3) обучен на похожем генераторе, поэтому его "
-        "преимущество здесь завышено. Честное сравнение — на реальных выписках (W4-6).",
+        (
+            "> Синтетика — модельные данные: ML (H3) обучен на похожем генераторе, поэтому его "
+            "преимущество здесь завышено. Честное сравнение — на реальных выписках (W4-6)."
+            if source == "синтетика"
+            else "> Реальные выписки: ML (H3) обучен только на синтетике и этих данных не видел. "
+            "В выписках обычно нет начального остатка, поэтому метрики кассового разрыва "
+            "здесь не интерпретируем — смотрим на WAPE/MAE и покрытие интервала."
+        ),
         "",
     ]
     return "\n".join(lines)
@@ -91,18 +100,36 @@ def main() -> None:
     parser.add_argument("--strategies", default=",".join(STRATEGIES))
     parser.add_argument("--end", type=date.fromisoformat, default=date.today())
     parser.add_argument("--out", type=Path, default=Path("../docs/backtest"))
+    parser.add_argument(
+        "--statements", type=Path, help="папка с подпапками-людьми и выписками внутри"
+    )
     args = parser.parse_args()
 
     names = args.strategies.split(",")
-    datasets = [
-        Dataset(k, history_from_synthetic(generate_profile(k, end=args.end), args.end))
-        for k in PROFILES
-    ]
+    if args.statements:
+        datasets = [
+            dataset_from_statements(d.name, sorted(f for f in d.iterdir() if f.is_file()))
+            for d in sorted(args.statements.iterdir())
+            if d.is_dir() and not d.name.startswith(".") and d != args.out
+        ]
+        for ds in datasets:
+            print(f"{ds.name}: {len(ds.history.txs)} операций, {ds.history.days_of_history} дней")
+    else:
+        datasets = [
+            Dataset(k, history_from_synthetic(generate_profile(k, end=args.end), args.end))
+            for k in PROFILES
+        ]
     reports = run_backtest({n: STRATEGIES[n] for n in names}, datasets, months=args.months)
 
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "report.md").write_text(
-        markdown(reports, [d.name for d in datasets], args.months), encoding="utf-8"
+        markdown(
+            reports,
+            [d.name for d in datasets],
+            args.months,
+            "реальные выписки" if args.statements else "синтетика",
+        ),
+        encoding="utf-8",
     )
     with (args.out / "cases.csv").open("w", newline="", encoding="utf-8") as f:
         rows = [{"strategy": r.strategy, **c} for r in reports for c in r.cases_json()]
