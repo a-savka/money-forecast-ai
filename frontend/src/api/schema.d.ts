@@ -89,6 +89,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/categories/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suggest Category */
+        get: operations["suggest_category_categories_suggest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/accounts": {
         parameters: {
             query?: never;
@@ -158,6 +175,74 @@ export interface paths {
         head?: never;
         /** Update Transaction */
         patch: operations["update_transaction_transactions__tx_id__patch"];
+        trace?: never;
+    };
+    "/imports/presets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Presets */
+        get: operations["list_presets_imports_presets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload Statement */
+        post: operations["upload_statement_imports_statement_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/{job_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm */
+        post: operations["confirm_imports__job_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Imports */
+        get: operations["list_imports_imports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/dev/seed": {
@@ -237,6 +322,16 @@ export interface components {
             /** Currency */
             currency: string;
         };
+        /** Body_upload_statement_imports_statement_post */
+        Body_upload_statement_imports_statement_post: {
+            /** File */
+            file: string;
+            /**
+             * Mapping
+             * @description JSON ColumnMapping
+             */
+            mapping?: string | null;
+        };
         /** CategoryOut */
         CategoryOut: {
             /** Id */
@@ -253,6 +348,34 @@ export interface components {
             color: string;
             /** Is Discretionary */
             is_discretionary: boolean;
+        };
+        /** CategorySuggestion */
+        CategorySuggestion: {
+            category: components["schemas"]["CategoryOut"];
+            /** Source */
+            source: string;
+        };
+        /**
+         * ColumnMapping
+         * @description Номера колонок (с 0). Сумма — либо одна колонка со знаком, либо пара «расход/приход».
+         */
+        ColumnMapping: {
+            /** Date */
+            date: number;
+            /** Description */
+            description?: number | null;
+            /** Amount */
+            amount?: number | null;
+            /** Expense */
+            expense?: number | null;
+            /** Income */
+            income?: number | null;
+            /** Mcc */
+            mcc?: number | null;
+            /** Category */
+            category?: number | null;
+            /** Status */
+            status?: number | null;
         };
         /** DemoLoginRequest */
         DemoLoginRequest: {
@@ -272,6 +395,96 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** ImportConfirm */
+        ImportConfirm: {
+            /** Account Id */
+            account_id?: number | null;
+            /** New Account Name */
+            new_account_name?: string | null;
+        };
+        /** ImportJobOut */
+        ImportJobOut: {
+            /** Id */
+            id: number;
+            /** Type */
+            type: string;
+            /** Status */
+            status: string;
+            /** File Name */
+            file_name: string | null;
+            /** Rows Total */
+            rows_total: number;
+            /** Rows Imported */
+            rows_imported: number;
+            /** Rows Skipped */
+            rows_skipped: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ImportPreview */
+        ImportPreview: {
+            /** Job Id */
+            job_id: number | null;
+            /** File Name */
+            file_name: string;
+            /** Headers */
+            headers: string[];
+            mapping: components["schemas"]["ColumnMapping"] | null;
+            /** Preset */
+            preset: string | null;
+            /** Bank Name */
+            bank_name: string | null;
+            /** Rows Total */
+            rows_total: number;
+            /** Duplicates */
+            duplicates: number;
+            /** Skipped */
+            skipped: number;
+            /** Errors */
+            errors: string[];
+            /** Period Start */
+            period_start: string | null;
+            /** Period End */
+            period_end: string | null;
+            /** Total Income */
+            total_income: number;
+            /** Total Expense */
+            total_expense: number;
+            /** Sample */
+            sample: components["schemas"]["PreviewRow"][];
+        };
+        /** ImportResult */
+        ImportResult: {
+            /** Job Id */
+            job_id: number;
+            /** Account Id */
+            account_id: number;
+            /** Imported */
+            imported: number;
+            /** Skipped */
+            skipped: number;
+        };
+        /** PreviewRow */
+        PreviewRow: {
+            /** Line */
+            line: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Amount */
+            amount: number;
+            /** Description */
+            description: string;
+            /** Category Id */
+            category_id: number | null;
+            /** Duplicate */
+            duplicate: boolean;
         };
         /** SeedRequest */
         SeedRequest: {
@@ -520,6 +733,39 @@ export interface operations {
             };
         };
     };
+    suggest_category_categories_suggest_get: {
+        parameters: {
+            query: {
+                description: string;
+                amount: number;
+                mcc?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategorySuggestion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_accounts_accounts_get: {
         parameters: {
             query?: never;
@@ -733,6 +979,116 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_presets_imports_presets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    }[];
+                };
+            };
+        };
+    };
+    upload_statement_imports_statement_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_statement_imports_statement_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_imports__job_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportConfirm"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_imports_imports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportJobOut"][];
                 };
             };
         };

@@ -1,6 +1,7 @@
 """Каскадная категоризация операций.
 
-Порядок: правила пользователя → категория банка → ключевые слова → MCC → «Прочее».
+Порядок: правила пользователя → категория банка → ключевые слова → общая категория банка
+(«Переводы», «Пополнения») → MCC → «Прочее».
 Ключевые слова идут раньше MCC, потому что MCC бывает слишком общим
 (например, доставка еды и фастфуд имеют один код 5814).
 """
@@ -73,14 +74,18 @@ class Categorizer:
             if rule.pattern or rule.mcc:
                 return CategoryGuess(rule.category_id, "rule")
 
-        if bank_category:
-            slug = BANK_CATEGORIES.get(bank_category.strip().lower())
-            if slug and (slug in INCOME_SLUGS) == is_income:
-                return self._guess(slug, "bank")
+        bank_slug = BANK_CATEGORIES.get((bank_category or "").strip().lower())
+        if bank_slug and (bank_slug in INCOME_SLUGS) != is_income:
+            bank_slug = None
+        if bank_slug and bank_slug not in GENERIC_BANK_SLUGS:
+            return self._guess(bank_slug, "bank")
 
         for keyword, slug in INCOME_KEYWORDS if is_income else EXPENSE_KEYWORDS:
             if keyword in text:
                 return self._guess(slug, "keyword")
+
+        if bank_slug:
+            return self._guess(bank_slug, "bank")
 
         if not is_income and mcc and mcc in MCC_CATEGORIES:
             return self._guess(MCC_CATEGORIES[mcc], "mcc")
@@ -89,3 +94,5 @@ class Categorizer:
 
 
 INCOME_SLUGS = {"salary", "freelance", "income_other"}
+# Слишком общие категории банка — уступают ключевым словам
+GENERIC_BANK_SLUGS = {"income_other", "transfers"}

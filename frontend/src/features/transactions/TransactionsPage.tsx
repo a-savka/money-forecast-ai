@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Sheet } from '@/components/ui/sheet'
 import { cn, formatDate, formatMoney } from '@/lib/utils'
 
+import { AddMenu } from './AddMenu'
 import { TransactionForm } from './TransactionForm'
 
 const KINDS: { value: TransactionFilters['kind']; label: string }[] = [
@@ -30,6 +31,7 @@ export function TransactionsPage() {
   const [kind, setKind] = useState<TransactionFilters['kind']>()
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [adding, setAdding] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const deferredQ = useDeferredValue(q)
 
   const query = useTransactions({ q: deferredQ, kind })
@@ -45,7 +47,7 @@ export function TransactionsPage() {
       <PageHeader
         title="Операции"
         action={
-          <Button size="icon" aria-label="Добавить операцию" onClick={() => setAdding(true)}>
+          <Button size="icon" aria-label="Добавить операцию" onClick={() => setMenuOpen(true)}>
             <Plus className="h-5 w-5" />
           </Button>
         }
@@ -76,8 +78,8 @@ export function TransactionsPage() {
       {query.error && <ErrorMessage error={query.error} />}
       {query.isSuccess && items.length === 0 && (
         <EmptyState icon={<Wallet className="h-8 w-8" />} title="Операций пока нет">
-          <Button className="mt-2" onClick={() => setAdding(true)}>
-            Добавить первую операцию
+          <Button className="mt-2" onClick={() => setMenuOpen(true)}>
+            Добавить операции
           </Button>
         </EmptyState>
       )}
@@ -128,6 +130,14 @@ export function TransactionsPage() {
         </Button>
       )}
 
+      <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title="Добавить операции">
+        <AddMenu
+          onManual={() => {
+            setMenuOpen(false)
+            setAdding(true)
+          }}
+        />
+      </Sheet>
       <Sheet open={adding} onClose={() => setAdding(false)} title="Новая операция">
         <TransactionForm onDone={() => setAdding(false)} />
       </Sheet>
