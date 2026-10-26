@@ -42,10 +42,15 @@ npm run dev
 
 ## Мобильное приложение (Android)
 
+Нужны JDK 21 и Android SDK (путь в `frontend/android/local.properties`: `sdk.dir=...`).
+
 ```bash
 cd frontend
-VITE_API_URL=http://<IP-компьютера-в-локальной-сети>:8000 npm run android:build
+npm run android:build
 # APK: frontend/android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+Телефон и компьютер должны быть в одной сети. Адрес API (`http://<IP-компьютера>:8000`)
+задаётся на экране входа → «Настройки сервера»; пересобирать APK не нужно.
 
 Подробный план и статус задач — `docs/MVP_PLAN.md`.

@@ -4,10 +4,35 @@ import { useSession } from '@/store/session'
 
 import type { paths } from './schema'
 
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const API_URL_KEY = 'mf-api-url'
+const DEFAULT_API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+
+/** Адрес API можно переопределить в приложении — удобно для APK в локальной сети. */
+export function getApiUrl(): string {
+  try {
+    return localStorage.getItem(API_URL_KEY) || DEFAULT_API_URL
+  } catch {
+    return DEFAULT_API_URL
+  }
+}
+
+export function setApiUrl(url: string) {
+  try {
+    if (url.trim()) localStorage.setItem(API_URL_KEY, url.trim().replace(/\/$/, ''))
+    else localStorage.removeItem(API_URL_KEY)
+  } catch {
+    // localStorage недоступен — используем адрес по умолчанию
+  }
+}
 
 const auth: Middleware = {
   onRequest({ request }) {
+    // Подменяем базовый адрес на актуальный (мог измениться в настройках)
+    const base = getApiUrl()
+    if (!request.url.startsWith(base)) {
+      const path = request.url.replace(/^https?:\/\/[^/]+/, '')
+      request = new Request(base + path, request)
+    }
     const token = useSession.getState().token
     if (token) request.headers.set('Authorization', `Bearer ${token}`)
     return request
@@ -18,7 +43,7 @@ const auth: Middleware = {
   },
 }
 
-export const api = createClient<paths>({ baseUrl: API_URL })
+export const api = createClient<paths>({ baseUrl: DEFAULT_API_URL })
 api.use(auth)
 
 export class ApiError extends Error {
