@@ -5,12 +5,14 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import func, select
 
+from app.categorizer.service import Categorizer, rule_pattern
 from app.deps import CurrentUser, DbSession
-from app.models import Account, Category, Transaction, User
+from app.models import Account, Category, CategoryRule, Transaction, User
 from app.schemas.finance import (
     AccountIn,
     AccountOut,
     CategoryOut,
+    CategorySuggestion,
     TransactionIn,
     TransactionOut,
     TransactionPage,
@@ -48,6 +50,15 @@ def _check_category(db: DbSession, category_id: int | None) -> None:
 def list_categories(db: DbSession) -> list[CategoryOut]:
     cats = db.scalars(select(Category).order_by(Category.id)).all()
     return [CategoryOut.model_validate(c) for c in cats]
+
+
+@router.get("/categories/suggest")
+def suggest_category(
+    description: str, amount: float, user: CurrentUser, db: DbSession, mcc: str | None = None
+) -> CategorySuggestion:
+    guess = Categorizer(db, user).categorize(description, amount, mcc)
+    category = db.get(Category, guess.category_id)
+    return CategorySuggestion(category=CategoryOut.model_validate(category), source=guess.source)
 
 
 @router.get("/accounts")
@@ -127,6 +138,10 @@ def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) ->
     else:
         acc = get_or_create_default_account(db, user)
     _check_category(db, body.category_id)
+    category_id, category_source = body.category_id, "user"
+    if category_id is None:
+        guess = Categorizer(db, user).categorize(body.description, body.amount, body.mcc)
+        category_id, category_source = guess.category_id, guess.source
     tx = Transaction(
         user_id=user.id,
         account_id=acc.id,
@@ -134,8 +149,8 @@ def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) ->
         amount=_money(body.amount),
         description=body.description,
         mcc=body.mcc,
-        category_id=body.category_id,
-        category_source="user",
+        category_id=category_id,
+        category_source=category_source,
         source="manual",
     )
     db.add(tx)
@@ -154,6 +169,8 @@ def update_transaction(
     if "category_id" in data:
         _check_category(db, data["category_id"])
         tx.category_source = "user"
+        if data["category_id"] is not None and data["category_id"] != tx.category_id:
+            _learn_rule(db, user, tx.description, data["category_id"])
     if "amount" in data and data["amount"] is not None:
         data["amount"] = _money(data["amount"])
     for key, value in data.items():
@@ -161,6 +178,30 @@ def update_transaction(
             setattr(tx, key, value)
     db.commit()
     return TransactionOut.model_validate(tx)
+
+
+def _learn_rule(db: DbSession, user: User, description: str, category_id: int) -> None:
+    """Ручная правка категории → правило пользователя + перекатегоризация похожих операций."""
+    pattern = rule_pattern(description)
+    if len(pattern) < 3:
+        return
+    rule = db.scalar(
+        select(CategoryRule).where(CategoryRule.user_id == user.id, CategoryRule.pattern == pattern)
+    )
+    if rule is None:
+        rule = CategoryRule(user_id=user.id, pattern=pattern, priority=10)
+        db.add(rule)
+    rule.category_id = category_id
+    similar = db.scalars(
+        select(Transaction).where(
+            Transaction.user_id == user.id,
+            Transaction.category_source != "user",
+            Transaction.description.ilike(f"%{description.strip()}%"),
+        )
+    )
+    for t in similar:
+        t.category_id = category_id
+        t.category_source = "rule"
 
 
 @router.delete("/transactions/{tx_id}", status_code=204)

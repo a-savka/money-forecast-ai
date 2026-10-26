@@ -85,3 +85,33 @@ def test_cannot_touch_foreign_data(client, auth, empty_auth):
 def test_zero_amount_rejected(client, empty_auth):
     r = client.post("/transactions", json={"date": "2026-10-01", "amount": 0}, headers=empty_auth)
     assert r.status_code == 422
+
+
+def test_auto_category_and_learning(client, empty_auth):
+    h = empty_auth
+    created = client.post(
+        "/transactions",
+        json={"date": "2026-10-01", "amount": -300, "description": "ВКУСВИЛЛ", "mcc": "5411"},
+        headers=h,
+    ).json()
+    assert created["category_id"] == _cat(client, "products")
+    assert created["category_source"] == "keyword"
+
+    other = client.post(
+        "/transactions",
+        json={"date": "2026-10-02", "amount": -500, "description": "ВКУСВИЛЛ"},
+        headers=h,
+    ).json()
+    # Пользователь считает ВкусВилл кафе → правило и перекатегоризация похожих
+    client.patch(
+        f"/transactions/{created['id']}", json={"category_id": _cat(client, "cafe")}, headers=h
+    )
+    items = client.get("/transactions", headers=h).json()["items"]
+    by_id = {t["id"]: t for t in items}
+    assert by_id[other["id"]]["category_id"] == _cat(client, "cafe")
+
+    s = client.get(
+        "/categories/suggest", params={"description": "вкусвилл у дома", "amount": -10}, headers=h
+    ).json()
+    assert s["category"]["slug"] == "cafe"
+    assert s["source"] == "rule"

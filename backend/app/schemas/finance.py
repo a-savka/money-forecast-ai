@@ -15,6 +15,11 @@ class CategoryOut(ORMModel):
     is_discretionary: bool
 
 
+class CategorySuggestion(BaseModel):
+    category: CategoryOut
+    source: str
+
+
 class AccountIn(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     bank_name: str | None = None
