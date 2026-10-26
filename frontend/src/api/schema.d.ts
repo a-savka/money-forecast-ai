@@ -245,6 +245,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/imports/bank-mock/banks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Banks */
+        get: operations["list_banks_imports_bank_mock_banks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/bank-mock/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Connect
+         * @description MOCK: «подключение» банка — генерирует историю операций за N месяцев.
+         */
+        post: operations["connect_imports_bank_mock_connect_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -321,6 +358,25 @@ export interface components {
             balance: number;
             /** Currency */
             currency: string;
+        };
+        /** BankConnectRequest */
+        BankConnectRequest: {
+            /** Bank */
+            bank: string;
+            /**
+             * Months
+             * @default 6
+             */
+            months: number;
+        };
+        /** BankConnectResult */
+        BankConnectResult: {
+            /** Account Id */
+            account_id: number;
+            /** Account Name */
+            account_name: string;
+            /** Imported */
+            imported: number;
         };
         /** Body_upload_statement_imports_statement_post */
         Body_upload_statement_imports_statement_post: {
@@ -467,6 +523,15 @@ export interface components {
             imported: number;
             /** Skipped */
             skipped: number;
+        };
+        /** MockBankOut */
+        MockBankOut: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string;
         };
         /** PreviewRow */
         PreviewRow: {
@@ -1089,6 +1154,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportJobOut"][];
+                };
+            };
+        };
+    };
+    list_banks_imports_bank_mock_banks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MockBankOut"][];
+                };
+            };
+        };
+    };
+    connect_imports_bank_mock_connect_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BankConnectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BankConnectResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

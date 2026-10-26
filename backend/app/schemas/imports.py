@@ -1,6 +1,6 @@
 import datetime as dt
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.importers.statement import ColumnMapping
 from app.schemas.common import ORMModel
@@ -54,3 +54,20 @@ class ImportJobOut(ORMModel):
     rows_imported: int
     rows_skipped: int
     created_at: dt.datetime
+
+
+class MockBankOut(BaseModel):
+    key: str
+    name: str
+    color: str
+
+
+class BankConnectRequest(BaseModel):
+    bank: str
+    months: int = Field(default=6, ge=1, le=12)
+
+
+class BankConnectResult(BaseModel):
+    account_id: int
+    account_name: str
+    imported: int

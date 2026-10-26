@@ -8,7 +8,16 @@ from sqlalchemy import select
 from app.deps import CurrentUser, DbSession
 from app.importers.statement import PRESETS, ColumnMapping, StatementError
 from app.models import ImportJob
-from app.schemas.imports import ImportConfirm, ImportJobOut, ImportPreview, ImportResult
+from app.schemas.imports import (
+    BankConnectRequest,
+    BankConnectResult,
+    ImportConfirm,
+    ImportJobOut,
+    ImportPreview,
+    ImportResult,
+    MockBankOut,
+)
+from app.services.bank_mock import BANKS, connect_bank
 from app.services.imports import confirm_import, preview_statement
 
 router = APIRouter(prefix="/imports", tags=["imports"])
@@ -68,3 +77,17 @@ def list_imports(user: CurrentUser, db: DbSession) -> list[ImportJobOut]:
         .limit(20)
     )
     return [ImportJobOut.model_validate(j) for j in jobs]
+
+
+@router.get("/bank-mock/banks")
+def list_banks() -> list[MockBankOut]:
+    return [MockBankOut(key=b.key, name=b.name, color=b.color) for b in BANKS.values()]
+
+
+@router.post("/bank-mock/connect")
+def connect(body: BankConnectRequest, user: CurrentUser, db: DbSession) -> BankConnectResult:
+    """MOCK: «подключение» банка — генерирует историю операций за N месяцев."""
+    if body.bank not in BANKS:
+        raise HTTPException(404, "Банк не поддерживается")
+    account, imported = connect_bank(db, user, body.bank, body.months)
+    return BankConnectResult(account_id=account.id, account_name=account.name, imported=imported)

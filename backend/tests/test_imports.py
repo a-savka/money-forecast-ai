@@ -110,3 +110,22 @@ def test_manual_mapping_and_excel(client, empty_auth):
 def test_bad_file(client, empty_auth):
     files = {"file": ("x.csv", b"only header\n")}
     assert client.post("/imports/statement", files=files, headers=empty_auth).status_code == 422
+
+
+def test_bank_mock_connect(client, empty_auth):
+    banks = client.get("/imports/bank-mock/banks").json()
+    assert {b["key"] for b in banks} >= {"tbank", "sber"}
+    res = client.post(
+        "/imports/bank-mock/connect", json={"bank": "sber", "months": 3}, headers=empty_auth
+    ).json()
+    assert res["imported"] > 100
+    accounts = client.get("/accounts", headers=empty_auth).json()
+    assert accounts[0]["name"] == "СберКарта"
+    # Баланс положительный и правдоподобный
+    assert 0 < accounts[0]["balance"] < 500_000
+    assert (
+        client.post(
+            "/imports/bank-mock/connect", json={"bank": "nope"}, headers=empty_auth
+        ).status_code
+        == 404
+    )

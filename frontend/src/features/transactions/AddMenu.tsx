@@ -1,4 +1,4 @@
-import { ChevronRight, FileSpreadsheet, PencilLine, type LucideIcon } from 'lucide-react'
+import { ChevronRight, FileSpreadsheet, Landmark, PencilLine, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Option {
@@ -12,6 +12,12 @@ interface Option {
 export function AddMenu({ onManual }: { onManual: () => void }) {
   const navigate = useNavigate()
   const options: Option[] = [
+    {
+      icon: Landmark,
+      title: 'Подключить банк',
+      hint: 'Т-Банк, Сбер, Альфа и другие — автоматически',
+      action: () => navigate('/connect-bank'),
+    },
     { icon: PencilLine, title: 'Ввести вручную', hint: 'Сумма, категория — 3 касания', action: onManual },
     {
       icon: FileSpreadsheet,
