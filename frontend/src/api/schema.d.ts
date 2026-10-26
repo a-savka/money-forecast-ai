@@ -282,6 +282,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/imports/receipt/qr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receipt Qr */
+        post: operations["receipt_qr_imports_receipt_qr_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -551,6 +568,11 @@ export interface components {
             /** Duplicate */
             duplicate: boolean;
         };
+        /** ReceiptQRRequest */
+        ReceiptQRRequest: {
+            /** Qr */
+            qr: string;
+        };
         /** SeedRequest */
         SeedRequest: {
             /** Profile */
@@ -577,6 +599,25 @@ export interface components {
             token_type: string;
             user: components["schemas"]["UserOut"];
         };
+        /**
+         * TransactionDraft
+         * @description Черновик операции для подтверждения пользователем.
+         */
+        TransactionDraft: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Amount */
+            amount: number;
+            /** Description */
+            description: string;
+            /** Category Id */
+            category_id: number | null;
+            /** Source */
+            source: string;
+        };
         /** TransactionIn */
         TransactionIn: {
             /** Account Id */
@@ -597,6 +638,12 @@ export interface components {
             category_id?: number | null;
             /** Mcc */
             mcc?: string | null;
+            /**
+             * Source
+             * @default manual
+             * @enum {string}
+             */
+            source: "manual" | "receipt" | "screenshot";
         };
         /** TransactionOut */
         TransactionOut: {
@@ -1198,6 +1245,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BankConnectResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receipt_qr_imports_receipt_qr_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReceiptQRRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDraft"];
                 };
             };
             /** @description Validation Error */

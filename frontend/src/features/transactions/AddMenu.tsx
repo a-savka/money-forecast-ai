@@ -1,4 +1,4 @@
-import { ChevronRight, FileSpreadsheet, Landmark, PencilLine, type LucideIcon } from 'lucide-react'
+import { ChevronRight, FileSpreadsheet, Landmark, PencilLine, QrCode, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Option {
@@ -19,6 +19,12 @@ export function AddMenu({ onManual }: { onManual: () => void }) {
       action: () => navigate('/connect-bank'),
     },
     { icon: PencilLine, title: 'Ввести вручную', hint: 'Сумма, категория — 3 касания', action: onManual },
+    {
+      icon: QrCode,
+      title: 'Сканировать чек',
+      hint: 'QR-код на бумажном чеке',
+      action: () => navigate('/receipt'),
+    },
     {
       icon: FileSpreadsheet,
       title: 'Загрузить выписку',

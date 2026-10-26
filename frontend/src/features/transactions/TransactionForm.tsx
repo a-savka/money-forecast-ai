@@ -16,6 +16,7 @@ export interface TransactionDraft {
   date?: string
   description?: string
   category_id?: number | null
+  source?: string
 }
 
 export function TransactionForm({
@@ -57,9 +58,12 @@ export function TransactionForm({
       description,
       category_id: categoryId,
       account_id: accountId ?? accounts[0]?.id,
+      source: (draft?.source ?? 'manual') as 'manual' | 'receipt' | 'screenshot',
     }
-    if (transaction) await update.mutateAsync({ id: transaction.id, body })
-    else await create.mutateAsync(body)
+    if (transaction) {
+      const { source: _source, ...patch } = body
+      await update.mutateAsync({ id: transaction.id, body: patch })
+    } else await create.mutateAsync(body)
     onDone()
   }
 

@@ -151,7 +151,7 @@ def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) ->
         mcc=body.mcc,
         category_id=category_id,
         category_source=category_source,
-        source="manual",
+        source=body.source,
     )
     db.add(tx)
     db.commit()

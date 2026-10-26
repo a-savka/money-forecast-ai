@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -46,6 +47,7 @@ class TransactionIn(BaseModel):
     description: str = ""
     category_id: int | None = None
     mcc: str | None = Field(default=None, max_length=4)
+    source: Literal["manual", "receipt", "screenshot"] = "manual"
 
     @field_validator("amount")
     @classmethod

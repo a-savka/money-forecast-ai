@@ -71,3 +71,17 @@ class BankConnectResult(BaseModel):
     account_id: int
     account_name: str
     imported: int
+
+
+class ReceiptQRRequest(BaseModel):
+    qr: str = Field(min_length=5, max_length=512)
+
+
+class TransactionDraft(BaseModel):
+    """Черновик операции для подтверждения пользователем."""
+
+    date: dt.date
+    amount: float
+    description: str
+    category_id: int | None
+    source: str

@@ -5,7 +5,9 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import ValidationError
 from sqlalchemy import select
 
+from app.categorizer.service import Categorizer
 from app.deps import CurrentUser, DbSession
+from app.importers.receipt import ReceiptError, parse_receipt_qr
 from app.importers.statement import PRESETS, ColumnMapping, StatementError
 from app.models import ImportJob
 from app.schemas.imports import (
@@ -16,8 +18,11 @@ from app.schemas.imports import (
     ImportPreview,
     ImportResult,
     MockBankOut,
+    ReceiptQRRequest,
+    TransactionDraft,
 )
 from app.services.bank_mock import BANKS, connect_bank
+from app.services.categories import category_ids_by_slug
 from app.services.imports import confirm_import, preview_statement
 
 router = APIRouter(prefix="/imports", tags=["imports"])
@@ -91,3 +96,24 @@ def connect(body: BankConnectRequest, user: CurrentUser, db: DbSession) -> BankC
         raise HTTPException(404, "Банк не поддерживается")
     account, imported = connect_bank(db, user, body.bank, body.months)
     return BankConnectResult(account_id=account.id, account_name=account.name, imported=imported)
+
+
+@router.post("/receipt/qr")
+def receipt_qr(body: ReceiptQRRequest, user: CurrentUser, db: DbSession) -> TransactionDraft:
+    try:
+        receipt = parse_receipt_qr(body.qr)
+    except ReceiptError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    description = f"Покупка по чеку №{receipt.fd}" if receipt.fd else "Покупка по чеку"
+    guess = Categorizer(db, user).categorize(description, float(receipt.amount))
+    # Большинство бумажных чеков — из продуктовых магазинов; пользователь может поменять
+    category_id = guess.category_id
+    if guess.source == "default" and receipt.amount < 0:
+        category_id = category_ids_by_slug(db)["products"]
+    return TransactionDraft(
+        date=receipt.timestamp.date(),
+        amount=float(receipt.amount),
+        description=description,
+        category_id=category_id,
+        source="receipt",
+    )
