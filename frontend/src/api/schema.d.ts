@@ -525,6 +525,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mock/budgets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Budgets */
+        get: operations["list_budgets_mock_budgets_get"];
+        /** Put Budget */
+        put: operations["put_budget_mock_budgets_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mock/budgets/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suggest Budgets */
+        get: operations["suggest_budgets_mock_budgets_suggest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mock/budgets/{budget_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Budget */
+        delete: operations["delete_budget_mock_budgets__budget_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -724,6 +776,46 @@ export interface components {
              * @description JSON ColumnMapping
              */
             mapping?: string | null;
+        };
+        /** BudgetIn */
+        BudgetIn: {
+            /** Category Id */
+            category_id: number;
+            /** Limit */
+            limit: number | string;
+        };
+        /** BudgetOut */
+        BudgetOut: {
+            /** Id */
+            id: number;
+            /** Category Id */
+            category_id: number;
+            /** Limit */
+            limit: number;
+            /** Spent */
+            spent: number;
+            /** Remaining */
+            remaining: number;
+            /** Projected */
+            projected: number;
+            /** Daily Pace */
+            daily_pace: number;
+            /** Days Left In Month */
+            days_left_in_month: number;
+            /** Exhausted In Days */
+            exhausted_in_days: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "warning" | "over";
+        };
+        /** BudgetSuggestion */
+        BudgetSuggestion: {
+            /** Category Id */
+            category_id: number;
+            /** Limit */
+            limit: number;
         };
         /** CashGap */
         CashGap: {
@@ -2287,6 +2379,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FamilyOut"] | null;
+                };
+            };
+        };
+    };
+    list_budgets_mock_budgets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"][];
+                };
+            };
+        };
+    };
+    put_budget_mock_budgets_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_budgets_mock_budgets_suggest_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetSuggestion"][];
+                };
+            };
+        };
+    };
+    delete_budget_mock_budgets__budget_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                budget_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

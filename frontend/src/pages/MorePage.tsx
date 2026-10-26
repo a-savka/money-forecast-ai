@@ -1,9 +1,10 @@
-import { ChevronRight, Crown, FlaskConical, LogOut, Users, type LucideIcon } from 'lucide-react'
+import { ChevronRight, Crown, FlaskConical, Gauge, LogOut, Users, type LucideIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { PageHeader } from '@/components/layout/AppLayout'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useBudgets } from '@/features/budgets/api'
 import { useFamily } from '@/features/family/api'
 import { useSubscription } from '@/features/subscription/api'
 import { useSession } from '@/store/session'
@@ -21,6 +22,8 @@ export function MorePage() {
   const navigate = useNavigate()
   const { data: sub } = useSubscription()
   const { data: family } = useFamily()
+  const { data: budgets = [] } = useBudgets()
+  const atRisk = budgets.filter((b) => b.status !== 'ok').length
   const planLabel =
     sub?.plan === 'premium'
       ? 'Premium активен'
@@ -30,6 +33,15 @@ export function MorePage() {
 
   const items: MenuItem[] = [
     { to: '/premium', icon: Crown, tone: 'bg-amber-50 text-amber-500', title: 'Подписка', hint: planLabel },
+    {
+      to: '/budgets',
+      icon: Gauge,
+      tone: 'bg-sky-50 text-sky-600',
+      title: 'Лимиты',
+      hint: budgets.length
+        ? `${budgets.length} лимит(а)${atRisk ? ` · под угрозой: ${atRisk}` : ' · всё в норме'}`
+        : 'Месячные лимиты по категориям',
+    },
     {
       to: '/family',
       icon: Users,

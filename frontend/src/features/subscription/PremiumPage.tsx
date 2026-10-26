@@ -14,7 +14,7 @@ const FEATURES: { title: string; free: boolean | string; premium: boolean | stri
   { title: 'Предупреждение о кассовом разрыве', free: 'за 7 дней', premium: 'за месяц' },
   { title: 'Советы ИИ по экономии', free: true, premium: true },
   { title: 'Семейный бюджет', free: false, premium: true },
-  { title: 'Лимиты по категориям', free: false, premium: true },
+  { title: 'Лимиты по категориям', free: '1 лимит', premium: 'без огранич.' },
 ]
 
 function Cell({ value }: { value: boolean | string }) {

@@ -3,11 +3,14 @@
 from datetime import date
 
 from fastapi import APIRouter, HTTPException
+from sqlalchemy import func, select
 
 from app.deps import CurrentUser, DbSession
-from app.models import Family, User
+from app.models import Budget, Category, Family, User
+from app.schemas.budgets import BudgetIn, BudgetOut, BudgetSuggestion
 from app.schemas.family import FamilyCreate, FamilyJoin, FamilyMemberOut, FamilyOut
 from app.schemas.subscription import SubscriptionAction, SubscriptionOut
+from app.services import budgets as bud
 from app.services import family as fam
 from app.services import subscription as sub
 
@@ -106,3 +109,39 @@ def add_demo_member(user: CurrentUser, db: DbSession) -> FamilyOut | None:
 def leave_family(user: CurrentUser, db: DbSession) -> FamilyOut | None:
     fam.leave_family(db, user)
     return None
+
+
+@router.get("/budgets")
+def list_budgets(user: CurrentUser, db: DbSession) -> list[BudgetOut]:
+    return [BudgetOut(**vars(s)) for s in bud.budget_statuses(db, user, date.today())]
+
+
+@router.get("/budgets/suggest")
+def suggest_budgets(user: CurrentUser, db: DbSession) -> list[BudgetSuggestion]:
+    limits = bud.suggest_limits(db, user, date.today())
+    return [BudgetSuggestion(category_id=c, limit=v) for c, v in limits.items()]
+
+
+@router.put("/budgets")
+def put_budget(body: BudgetIn, user: CurrentUser, db: DbSession) -> list[BudgetOut]:
+    category = db.get(Category, body.category_id)
+    if category is None or category.kind != "expense":
+        raise HTTPException(422, "Лимит можно задать только для категории расходов")
+    exists = db.scalar(
+        select(Budget).where(Budget.user_id == user.id, Budget.category_id == body.category_id)
+    )
+    count = db.scalar(select(func.count()).where(Budget.user_id == user.id)) or 0
+    if exists is None and count >= bud.FREE_LIMIT and not sub.has_premium(user):
+        raise HTTPException(402, "В Free доступен один лимит — больше в Premium")
+    bud.upsert_budget(db, user, body.category_id, body.limit)
+    return list_budgets(user, db)
+
+
+@router.delete("/budgets/{budget_id}")
+def delete_budget(budget_id: int, user: CurrentUser, db: DbSession) -> list[BudgetOut]:
+    budget = db.get(Budget, budget_id)
+    if budget is None or budget.user_id != user.id:
+        raise HTTPException(404, "Лимит не найден")
+    db.delete(budget)
+    db.commit()
+    return list_budgets(user, db)

@@ -1,12 +1,14 @@
-import { CalendarClock, ChevronRight, Crown, Lightbulb, Wallet } from 'lucide-react'
+import { CalendarClock, ChevronRight, Crown, Gauge, Lightbulb, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { useAccounts } from '@/api/hooks'
+import { useAccounts, useCategoryMap } from '@/api/hooks'
 import { Card, CardTitle } from '@/components/ui/card'
 import { PageLoader } from '@/components/ui/feedback'
 import { NoForecast } from '@/features/forecast/ForecastPage'
 import { RiskBadge } from '@/features/forecast/RiskBadge'
 import { UpcomingList } from '@/features/forecast/UpcomingList'
+import { BudgetCard } from '@/features/budgets/BudgetCard'
+import { useBudgets } from '@/features/budgets/api'
 import { useForecast } from '@/features/forecast/api'
 import { RecommendationCard } from '@/features/recommendations/RecommendationCard'
 import { useRecommendations } from '@/features/recommendations/api'
@@ -21,6 +23,8 @@ export function HomePage() {
   const { data: accounts = [] } = useAccounts()
   const f = forecast.data
   const recs = useRecommendations().data?.items ?? []
+  const budgetsAtRisk = (useBudgets().data ?? []).filter((b) => b.status !== 'ok')
+  const categoryMap = useCategoryMap()
 
   return (
     <div className="space-y-4 pt-4">
@@ -90,6 +94,20 @@ export function HomePage() {
                   <RecommendationCard key={r.id} rec={r} compact />
                 ))}
               </ul>
+            </Card>
+          )}
+
+          {budgetsAtRisk.length > 0 && (
+            <Card className="space-y-3">
+              <Link to="/budgets" className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-1">
+                  <Gauge className="h-4 w-4" /> Лимиты под угрозой
+                </CardTitle>
+                <ChevronRight className="h-4 w-4 text-brand-600" />
+              </Link>
+              {budgetsAtRisk.slice(0, 2).map((b) => (
+                <BudgetCard key={b.id} budget={b} category={categoryMap.get(b.category_id)} compact />
+              ))}
             </Card>
           )}
 
