@@ -384,6 +384,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/experiments/backtest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Backtest */
+        post: operations["backtest_experiments_backtest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/experiments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Experiments */
+        get: operations["experiments_experiments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -460,6 +494,79 @@ export interface components {
             balance: number;
             /** Currency */
             currency: string;
+        };
+        /** BacktestCase */
+        BacktestCase: {
+            /** Dataset */
+            dataset: string;
+            /**
+             * Cutoff
+             * Format: date
+             */
+            cutoff: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /** Actual */
+            actual: number;
+            /** Forecast */
+            forecast: number;
+            /** P10 */
+            p10: number;
+            /** P90 */
+            p90: number;
+            /** Actual Gap */
+            actual_gap: boolean;
+            /** Predicted Risk */
+            predicted_risk: string;
+            /** Latency Ms */
+            latency_ms: number;
+        };
+        /** BacktestRequest */
+        BacktestRequest: {
+            /** Strategies */
+            strategies?: string[] | null;
+            /**
+             * Dataset
+             * @default demo
+             * @enum {string}
+             */
+            dataset: "demo" | "me";
+            /**
+             * Months
+             * @default 3
+             */
+            months: number;
+        };
+        /** BacktestRunOut */
+        BacktestRunOut: {
+            /** Id */
+            id: number;
+            /** Strategy */
+            strategy: string;
+            /** Dataset */
+            dataset: string;
+            /** Params */
+            params: {
+                [key: string]: unknown;
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            };
+            /** Cases */
+            cases: components["schemas"]["BacktestCase"][];
+            /** Duration Ms */
+            duration_ms: number;
+            /** Llm Cost */
+            llm_cost: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** BalancePoint */
         BalancePoint: {
@@ -1697,6 +1804,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RecommendationsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    backtest_experiments_backtest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BacktestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestRunOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    experiments_experiments_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestRunOut"][];
                 };
             };
             /** @description Validation Error */

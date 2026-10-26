@@ -1,5 +1,5 @@
-import { LogOut } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { ChevronRight, FlaskConical, LogOut } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { PageHeader } from '@/components/layout/AppLayout'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,18 @@ export function MorePage() {
       <Card className="mb-4">
         <p className="font-semibold">{user?.name}</p>
         <p className="text-sm text-slate-500">{user?.email}</p>
+      </Card>
+      <Card className="mb-4 p-0">
+        <Link to="/experiments" className="flex items-center gap-3 p-4">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+            <FlaskConical className="h-5 w-5" />
+          </span>
+          <span className="flex-1">
+            <span className="block font-medium">Эксперименты</span>
+            <span className="block text-sm text-slate-500">Стратегии прогноза H0–H3 и бэктест</span>
+          </span>
+          <ChevronRight className="h-5 w-5 text-slate-400" />
+        </Link>
       </Card>
       <Button
         variant="secondary"

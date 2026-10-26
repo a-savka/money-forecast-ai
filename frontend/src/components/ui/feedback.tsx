@@ -38,6 +38,20 @@ const badgeTones = {
   brand: 'bg-brand-100 text-brand-700',
 }
 
-export function Badge({ tone = 'slate', children }: { tone?: keyof typeof badgeTones; children: ReactNode }) {
-  return <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', badgeTones[tone])}>{children}</span>
+export function Badge({
+  tone = 'slate',
+  className,
+  children,
+}: {
+  tone?: keyof typeof badgeTones
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <span
+      className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium', badgeTones[tone], className)}
+    >
+      {children}
+    </span>
+  )
 }

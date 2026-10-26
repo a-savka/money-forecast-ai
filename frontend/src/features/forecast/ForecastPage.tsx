@@ -108,7 +108,10 @@ export function ForecastPage() {
             </CardTitle>
             <p>{f.explanation}</p>
             <p className="mt-2 text-xs text-slate-400">
-              Модель: {strategyTitle ?? strategy}. Сменить и сравнить — в разделе «Ещё → Эксперименты».
+              Модель: {strategyTitle ?? strategy}.{' '}
+              <Link to="/experiments" className="text-brand-600 underline">
+                Сменить и сравнить модели
+              </Link>
             </p>
           </Card>
         </div>

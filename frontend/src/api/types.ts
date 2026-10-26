@@ -22,3 +22,6 @@ export type Horizon = 'week' | 'month'
 export type Recommendation = S['Recommendation']
 export type RecommendationsOut = S['RecommendationsOut']
 export type RecommendationsMode = 'rules' | 'llm'
+export type BacktestRun = S['BacktestRunOut']
+export type BacktestCase = S['BacktestCase']
+export type BacktestRequest = S['BacktestRequest']
