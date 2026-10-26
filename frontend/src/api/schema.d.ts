@@ -299,6 +299,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/analytics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Summary */
+        get: operations["summary_analytics_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytics/dynamics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dynamics */
+        get: operations["get_dynamics_analytics_dynamics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -404,6 +438,19 @@ export interface components {
              * @description JSON ColumnMapping
              */
             mapping?: string | null;
+        };
+        /** CategoryAmount */
+        CategoryAmount: {
+            /** Category Id */
+            category_id: number;
+            /** Amount */
+            amount: number;
+            /** Count */
+            count: number;
+            /** Share */
+            share: number;
+            /** Prev Amount */
+            prev_amount: number;
         };
         /** CategoryOut */
         CategoryOut: {
@@ -549,6 +596,34 @@ export interface components {
             name: string;
             /** Color */
             color: string;
+        };
+        /** MonthPoint */
+        MonthPoint: {
+            /** Month */
+            month: string;
+            /** Income */
+            income: number;
+            /** Expense */
+            expense: number;
+        };
+        /** MonthSummary */
+        MonthSummary: {
+            /** Month */
+            month: string;
+            /** Income */
+            income: number;
+            /** Expense */
+            expense: number;
+            /** Net */
+            net: number;
+            /** Prev Expense */
+            prev_expense: number;
+            /** Days Elapsed */
+            days_elapsed: number;
+            /** Days In Month */
+            days_in_month: number;
+            /** By Category */
+            by_category: components["schemas"]["CategoryAmount"][];
         };
         /** PreviewRow */
         PreviewRow: {
@@ -1278,6 +1353,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TransactionDraft"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summary_analytics_summary_get: {
+        parameters: {
+            query?: {
+                month?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dynamics_analytics_dynamics_get: {
+        parameters: {
+            query?: {
+                months?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthPoint"][];
                 };
             };
             /** @description Validation Error */

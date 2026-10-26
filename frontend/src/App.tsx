@@ -1,6 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/AppLayout'
+import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { ConnectBankPage } from '@/features/import/ConnectBankPage'
 import { ImportPage } from '@/features/import/ImportPage'
@@ -24,7 +25,7 @@ export default function App() {
           <Route index element={<Placeholder title="Главная" />} />
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="forecast" element={<Placeholder title="Прогноз" />} />
-          <Route path="analytics" element={<Placeholder title="Аналитика" />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>
         <Route path="import" element={<ImportPage />} />

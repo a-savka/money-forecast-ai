@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, dev, finance, health, imports
+from app.api import analytics, auth, dev, finance, health, imports
 from app.config import get_settings
 from app.db import SessionLocal
 from app.services.categories import ensure_system_categories
@@ -32,7 +32,14 @@ def create_app(*, seed_on_startup: bool = True) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    for router in (health.router, auth.router, finance.router, imports.router, dev.router):
+    for router in (
+        health.router,
+        auth.router,
+        finance.router,
+        imports.router,
+        analytics.router,
+        dev.router,
+    ):
         app.include_router(router)
     return app
 
