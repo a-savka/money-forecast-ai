@@ -1,4 +1,4 @@
-import { ChevronRight, FileSpreadsheet, Landmark, PencilLine, QrCode, type LucideIcon } from 'lucide-react'
+import { ChevronRight, FileSpreadsheet, ImageUp, Landmark, PencilLine, QrCode, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface Option {
@@ -8,7 +8,7 @@ interface Option {
   action: () => void
 }
 
-/** Способы добавить операции: вручную, выпиской, из банка, по чеку. */
+/** Способы добавить операции: вручную, выпиской, из банка, по чеку или скриншоту. */
 export function AddMenu({ onManual }: { onManual: () => void }) {
   const navigate = useNavigate()
   const options: Option[] = [
@@ -24,6 +24,12 @@ export function AddMenu({ onManual }: { onManual: () => void }) {
       title: 'Сканировать чек',
       hint: 'QR-код на бумажном чеке',
       action: () => navigate('/receipt'),
+    },
+    {
+      icon: ImageUp,
+      title: 'Скриншот из банка',
+      hint: 'ИИ распознает сумму, дату и магазин',
+      action: () => navigate('/screenshot'),
     },
     {
       icon: FileSpreadsheet,

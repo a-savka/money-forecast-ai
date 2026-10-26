@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useInvalidateFinance } from '@/api/hooks'
 import { api, unwrap } from '@/api/client'
-import type { ColumnMapping, ImportPreview, ImportResult } from '@/api/types'
+import type { ColumnMapping, ImportPreview, ImportResult, TransactionDraftOut } from '@/api/types'
 
 export function useUploadStatement() {
   return useMutation({
@@ -32,5 +32,20 @@ export function useConfirmImport() {
         }),
       ),
     onSuccess: invalidate,
+  })
+}
+
+export function useParseScreenshot() {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData()
+      form.append('file', file)
+      return unwrap<TransactionDraftOut>(
+        api.POST('/imports/receipt/image', {
+          body: form as unknown as { file: string },
+          bodySerializer: (b) => b as unknown as FormData,
+        }),
+      )
+    },
   })
 }

@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 from typing import Annotated
 
@@ -8,7 +9,10 @@ from sqlalchemy import select
 from app.categorizer.service import Categorizer
 from app.deps import CurrentUser, DbSession
 from app.importers.receipt import ReceiptError, parse_receipt_qr
+from app.importers.screenshot import ScreenshotError, extract_transaction
 from app.importers.statement import PRESETS, ColumnMapping, StatementError
+from app.llm.base import LLMError, LLMNotSupported
+from app.llm.factory import get_provider
 from app.models import ImportJob
 from app.schemas.imports import (
     BankConnectRequest,
@@ -116,4 +120,32 @@ def receipt_qr(body: ReceiptQRRequest, user: CurrentUser, db: DbSession) -> Tran
         description=description,
         category_id=category_id,
         source="receipt",
+    )
+
+
+@router.post("/receipt/image")
+def receipt_image(
+    file: Annotated[UploadFile, File()], user: CurrentUser, db: DbSession
+) -> TransactionDraft:
+    """Скриншот операции из банковского приложения → черновик операции (vision-LLM)."""
+    image = file.file.read()
+    try:
+        res = extract_transaction(get_provider(), image, file.content_type or "", dt.date.today())
+    except ScreenshotError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except LLMNotSupported as exc:
+        raise HTTPException(501, "Текущая LLM не умеет распознавать изображения") from exc
+    except LLMError as exc:
+        raise HTTPException(502, f"Не удалось распознать изображение: {exc}") from exc
+    guess = Categorizer(db, user).categorize(
+        res.merchant, res.amount, bank_category=res.bank_category
+    )
+    return TransactionDraft(
+        date=res.date,
+        amount=res.amount,
+        description=res.merchant,
+        category_id=guess.category_id,
+        source="screenshot",
+        confidence=res.confidence,
+        info=res.info,
     )

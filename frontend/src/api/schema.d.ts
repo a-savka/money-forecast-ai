@@ -299,6 +299,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/imports/receipt/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Receipt Image
+         * @description Скриншот операции из банковского приложения → черновик операции (vision-LLM).
+         */
+        post: operations["receipt_image_imports_receipt_image_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/analytics/summary": {
         parameters: {
             query?: never;
@@ -602,6 +622,11 @@ export interface components {
             account_name: string;
             /** Imported */
             imported: number;
+        };
+        /** Body_receipt_image_imports_receipt_image_post */
+        Body_receipt_image_imports_receipt_image_post: {
+            /** File */
+            file: string;
         };
         /** Body_upload_statement_imports_statement_post */
         Body_upload_statement_imports_statement_post: {
@@ -981,6 +1006,15 @@ export interface components {
             category_id: number | null;
             /** Source */
             source: string;
+            /** Confidence */
+            confidence?: number | null;
+            /**
+             * Info
+             * @default {}
+             */
+            info: {
+                [key: string]: unknown;
+            };
         };
         /** TransactionIn */
         TransactionIn: {
@@ -1648,6 +1682,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ReceiptQRRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDraft"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receipt_image_imports_receipt_image_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_receipt_image_imports_receipt_image_post"];
             };
         };
         responses: {

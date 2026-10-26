@@ -4,6 +4,8 @@
 построенный по тем же входным данным, что получает настоящая модель.
 """
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -83,4 +85,42 @@ class RecommendationsRewrite(BaseModel):
                 {"id": r["id"], "title": r["title"], "text": r["text"]}
                 for r in payload.get("recommendations", [])
             ]
+        }
+
+
+# MOCK: без реальной vision-модели мок не видит картинку и возвращает одну из типовых
+# операций (выбор по хэшу изображения — один и тот же скриншот даёт один результат).
+# В реальной версии поля заполняет GigaChat по изображению.
+MOCK_SCREENSHOTS = [
+    ("ВКУСВИЛЛ", 1247.50, "Супермаркеты"),
+    ("Яндекс Такси", 389.00, "Транспорт"),
+    ("Кофемания", 640.00, "Рестораны"),
+    ("OZON", 2199.00, "Маркетплейсы"),
+]
+
+
+class ScreenshotExtraction(BaseModel):
+    """Операция, распознанная на скриншоте банковского приложения."""
+
+    is_transaction: bool = Field(description="На изображении есть операция по карте/счёту")
+    amount: float = Field(ge=0, description="Сумма операции в рублях, без знака")
+    direction: Literal["expense", "income"] = Field(description="Списание или поступление")
+    date: str | None = Field(None, description="Дата операции YYYY-MM-DD, если видна")
+    merchant: str = Field("", description="Название магазина/получателя/отправителя")
+    bank_category: str | None = Field(None, description="Категория, как её подписал банк")
+    confidence: float = Field(0.5, ge=0, le=1, description="Уверенность распознавания 0..1")
+
+    @classmethod
+    def mock_response(cls, payload: dict) -> dict:
+        merchant, amount, category = MOCK_SCREENSHOTS[
+            int(payload.get("image_hash", "0")[:8] or "0", 16) % len(MOCK_SCREENSHOTS)
+        ]
+        return {
+            "is_transaction": True,
+            "amount": amount,
+            "direction": "expense",
+            "date": payload.get("today"),
+            "merchant": merchant,
+            "bank_category": category,
+            "confidence": 0.9,
         }

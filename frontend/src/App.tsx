@@ -9,6 +9,7 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { ConnectBankPage } from '@/features/import/ConnectBankPage'
 import { ImportPage } from '@/features/import/ImportPage'
 import { ReceiptPage } from '@/features/import/ReceiptPage'
+import { ScreenshotPage } from '@/features/import/ScreenshotPage'
 import { RecommendationsPage } from '@/features/recommendations/RecommendationsPage'
 import { TransactionsPage } from '@/features/transactions/TransactionsPage'
 import { MorePage } from '@/pages/MorePage'
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="import" element={<ImportPage />} />
         <Route path="connect-bank" element={<ConnectBankPage />} />
         <Route path="receipt" element={<ReceiptPage />} />
+        <Route path="screenshot" element={<ScreenshotPage />} />
         <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="experiments" element={<ExperimentsPage />} />
         <Route path="onboarding" element={<Navigate to="/transactions" replace />} />

@@ -85,3 +85,6 @@ class TransactionDraft(BaseModel):
     description: str
     category_id: int | None
     source: str
+    # Для распознанных LLM черновиков: уверенность и служебная информация о модели
+    confidence: float | None = None
+    info: dict = {}
