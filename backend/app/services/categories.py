@@ -10,7 +10,7 @@ from app.models import Category
 class SystemCategory:
     slug: str
     name: str
-    kind: str
+    kind: str  # expense | income | transfer
     icon: str
     color: str
     is_discretionary: bool = False
@@ -38,6 +38,8 @@ SYSTEM_CATEGORIES: list[SystemCategory] = [
     SystemCategory("salary", "Зарплата", "income", "wallet", "#16a34a"),
     SystemCategory("freelance", "Фриланс", "income", "laptop", "#0d9488"),
     SystemCategory("income_other", "Прочие доходы", "income", "plus-circle", "#65a30d"),
+    # Переводы между своими счетами: не доход и не расход
+    SystemCategory("savings", "Накопления", "transfer", "piggy-bank", "#0891b2"),
 ]
 
 

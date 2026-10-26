@@ -10,7 +10,7 @@ class Category(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     slug: Mapped[str] = mapped_column(String(32), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(64))
-    kind: Mapped[str] = mapped_column(String(8))  # expense | income
+    kind: Mapped[str] = mapped_column(String(8))  # expense | income | transfer
     icon: Mapped[str] = mapped_column(String(32), default="circle")
     color: Mapped[str] = mapped_column(String(9), default="#94a3b8")
     # Необязательные траты — кандидаты на сокращение в рекомендациях
