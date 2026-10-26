@@ -36,7 +36,7 @@ def recommendations(
     as_of = date.today()
     history = history_from_db(db, user, as_of)
     if history.txs.empty:
-        return RecommendationsOut(items=[], mode=mode)
+        return RecommendationsOut(items=[], mode=mode, info={"reason": "no_data"})
     forecast = run_forecast(
         STRATEGIES[strategy], history, horizon_end(as_of, default_horizon(user)), seed=user.id
     )

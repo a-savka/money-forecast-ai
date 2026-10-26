@@ -136,9 +136,9 @@ export function NoForecast({ error }: { error: unknown }) {
   if (status !== 409) return <ErrorMessage error={error} />
   return (
     <EmptyState icon={<TrendingUp className="h-8 w-8" />} title="Пока не из чего строить прогноз">
-      <p className="text-sm">Подключите банк или загрузите выписку — прогноз появится сразу.</p>
-      <Link to="/connect-bank">
-        <Button className="mt-2">Подключить банк</Button>
+      <p className="text-sm">Подключите банк, загрузите выписку или попробуйте демо-данные — прогноз появится сразу.</p>
+      <Link to="/onboarding">
+        <Button className="mt-2">Добавить операции</Button>
       </Link>
     </EmptyState>
   )

@@ -50,7 +50,9 @@ export function RecommendationsPage() {
       {error && <ErrorMessage error={error} />}
       {data && data.items.length === 0 && (
         <EmptyState icon={<Lightbulb className="h-8 w-8" />} title="Пока советов нет">
-          Финансы выглядят стабильно — заглядывайте после новых операций.
+          {data.info?.reason === 'no_data'
+            ? 'Советы появятся, когда в приложении будут операции.'
+            : 'Финансы выглядят стабильно — заглядывайте после новых операций.'}
         </EmptyState>
       )}
       {data && data.items.length > 0 && (

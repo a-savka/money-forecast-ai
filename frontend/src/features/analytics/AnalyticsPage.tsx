@@ -68,10 +68,12 @@ export function AnalyticsPage() {
       {summary.error && <ErrorMessage error={summary.error} />}
       {summary.data && <Summary data={summary.data} isCurrent={isCurrent} />}
 
-      <Card className="mt-4">
-        <CardTitle>Доходы и расходы за 6 месяцев</CardTitle>
-        {dyn.data && <Dynamics points={dyn.data} />}
-      </Card>
+      {dyn.data?.some((p) => p.income > 0 || p.expense > 0) && (
+        <Card className="mt-4">
+          <CardTitle>Доходы и расходы за 6 месяцев</CardTitle>
+          <Dynamics points={dyn.data} />
+        </Card>
+      )}
     </>
   )
 }

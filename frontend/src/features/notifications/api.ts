@@ -16,6 +16,7 @@ export function useAlerts() {
     enabled,
     staleTime: 5 * 60_000,
     refetchInterval: 15 * 60_000,
+    refetchOnWindowFocus: true,
   })
 }
 
