@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     gigachat_auth_key: str = ""
     gigachat_scope: str = "GIGACHAT_API_PERS"
     gigachat_model: str = "GigaChat"
+    gigachat_verify_ssl: bool = True
+    gigachat_ca_bundle: str = ""
     yandex_api_key: str = ""
     yandex_folder_id: str = ""
     yandex_model: str = "yandexgpt-lite"
