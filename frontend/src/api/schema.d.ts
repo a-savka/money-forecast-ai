@@ -333,6 +333,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/forecast/strategies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Strategies */
+        get: operations["strategies_forecast_strategies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/forecast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Forecast */
+        get: operations["forecast_forecast_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -410,6 +444,22 @@ export interface components {
             /** Currency */
             currency: string;
         };
+        /** BalancePoint */
+        BalancePoint: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Expected */
+            expected: number;
+            /** P10 */
+            p10: number;
+            /** P50 */
+            p50: number;
+            /** P90 */
+            p90: number;
+        };
         /** BankConnectRequest */
         BankConnectRequest: {
             /** Bank */
@@ -439,6 +489,17 @@ export interface components {
              */
             mapping?: string | null;
         };
+        /** CashGap */
+        CashGap: {
+            /** Risk */
+            risk: string;
+            /** Probability */
+            probability: number;
+            /** First Negative Date */
+            first_negative_date: string | null;
+            /** Min Balance P10 */
+            min_balance_p10: number;
+        };
         /** CategoryAmount */
         CategoryAmount: {
             /** Category Id */
@@ -451,6 +512,15 @@ export interface components {
             share: number;
             /** Prev Amount */
             prev_amount: number;
+        };
+        /** CategoryForecast */
+        CategoryForecast: {
+            /** Category */
+            category: string;
+            /** Expected */
+            expected: number;
+            /** Recurring */
+            recurring: number;
         };
         /** CategoryOut */
         CategoryOut: {
@@ -510,6 +580,47 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+        };
+        /** ForecastResult */
+        ForecastResult: {
+            /** Strategy */
+            strategy: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /** Current Balance */
+            current_balance: number;
+            /** Expected Expense */
+            expected_expense: number;
+            /** Expected Expense P10 */
+            expected_expense_p10: number;
+            /** Expected Expense P90 */
+            expected_expense_p90: number;
+            /** Expected Income */
+            expected_income: number;
+            /** Expected Balance End */
+            expected_balance_end: number;
+            /** By Category */
+            by_category: components["schemas"]["CategoryForecast"][];
+            /** Daily Balance */
+            daily_balance: components["schemas"]["BalancePoint"][];
+            /** Upcoming */
+            upcoming: components["schemas"]["UpcomingPayment"][];
+            cash_gap: components["schemas"]["CashGap"];
+            /** Safe To Spend Per Day */
+            safe_to_spend_per_day: number;
+            /**
+             * Explanation
+             * @default
+             */
+            explanation: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -663,6 +774,17 @@ export interface components {
              */
             seed: number;
         };
+        /** StrategyInfo */
+        StrategyInfo: {
+            /** Name */
+            name: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Is Default */
+            is_default: boolean;
+        };
         /** TokenResponse */
         TokenResponse: {
             /** Access Token */
@@ -767,6 +889,22 @@ export interface components {
             description?: string | null;
             /** Category Id */
             category_id?: number | null;
+        };
+        /** UpcomingPayment */
+        UpcomingPayment: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Name */
+            name: string;
+            /** Category */
+            category: string;
+            /** Amount */
+            amount: number;
+            /** Confidence */
+            confidence: number;
         };
         /** UserOut */
         UserOut: {
@@ -1415,6 +1553,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MonthPoint"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    strategies_forecast_strategies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyInfo"][];
+                };
+            };
+        };
+    };
+    forecast_forecast_get: {
+        parameters: {
+            query?: {
+                strategy?: string;
+                horizon?: "week" | "month";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForecastResult"];
                 };
             };
             /** @description Validation Error */

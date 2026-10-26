@@ -2,13 +2,14 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
+import { ForecastPage } from '@/features/forecast/ForecastPage'
+import { HomePage } from '@/features/home/HomePage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { ConnectBankPage } from '@/features/import/ConnectBankPage'
 import { ImportPage } from '@/features/import/ImportPage'
 import { ReceiptPage } from '@/features/import/ReceiptPage'
 import { TransactionsPage } from '@/features/transactions/TransactionsPage'
 import { MorePage } from '@/pages/MorePage'
-import { Placeholder } from '@/pages/Placeholder'
 import { useSession } from '@/store/session'
 
 function RequireAuth() {
@@ -22,9 +23,9 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
-          <Route index element={<Placeholder title="Главная" />} />
+          <Route index element={<HomePage />} />
           <Route path="transactions" element={<TransactionsPage />} />
-          <Route path="forecast" element={<Placeholder title="Прогноз" />} />
+          <Route path="forecast" element={<ForecastPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>

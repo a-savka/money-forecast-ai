@@ -16,3 +16,6 @@ export type BankConnectResult = S['BankConnectResult']
 export type TransactionDraftOut = S['TransactionDraft']
 export type MonthSummary = S['MonthSummary']
 export type MonthPoint = S['MonthPoint']
+export type ForecastResult = S['ForecastResult']
+export type StrategyInfo = S['StrategyInfo']
+export type Horizon = 'week' | 'month'
