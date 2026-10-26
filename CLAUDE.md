@@ -13,6 +13,7 @@
 ```bash
 docker compose up --build                     # db + api (:8000, /docs) + web (:5173)
 cd backend && uv run pytest                   # тесты backend (SQLite in-memory)
+docker compose exec api python -m scripts.train_ml_gbm   # обучить ML-модель H3 (~30 с; иначе обучится облегчённая при первом запросе)
 cd backend && uv run ruff check . && uv run ruff format --check .
 cd frontend && npm run lint && npm run typecheck && npm test
 cd frontend && npm run gen:api                # TS-типы из OpenAPI (API должен быть запущен)

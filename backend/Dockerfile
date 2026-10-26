@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+# libgomp — OpenMP для LightGBM
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+
 COPY --from=ghcr.io/astral-sh/uv:0.10.3 /uv /usr/local/bin/uv
 
 ENV UV_COMPILE_BYTECODE=1 \

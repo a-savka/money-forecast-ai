@@ -14,6 +14,24 @@ from app.main import create_app
 from app.services.categories import ensure_system_categories
 
 
+@pytest.fixture(scope="session")
+def tiny_ml_model():
+    """Маленькая модель H3 — чтобы тесты не обучали полноценную."""
+    from datetime import date
+
+    from app.forecasting.strategies.ml_gbm import train
+
+    return train(n_profiles=2, n_estimators=20, end=date(2026, 10, 26))
+
+
+@pytest.fixture(autouse=True)
+def _ml_model(tiny_ml_model):
+    from app.forecasting.registry import STRATEGIES
+    from app.forecasting.strategies.ml_gbm import LoadedModel
+
+    STRATEGIES["ml_gbm"]._model = LoadedModel(tiny_ml_model)
+
+
 @pytest.fixture
 def engine():
     eng = create_engine(
