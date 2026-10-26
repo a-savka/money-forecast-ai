@@ -3,6 +3,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { ExperimentsPage } from '@/features/experiments/ExperimentsPage'
+import { FamilyPage } from '@/features/family/FamilyPage'
 import { ForecastPage } from '@/features/forecast/ForecastPage'
 import { HomePage } from '@/features/home/HomePage'
 import { LoginPage } from '@/features/auth/LoginPage'
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="experiments" element={<ExperimentsPage />} />
         <Route path="premium" element={<PremiumPage />} />
+        <Route path="family" element={<FamilyPage />} />
         <Route path="onboarding" element={<Navigate to="/transactions" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,7 +1,7 @@
 import hashlib
 from datetime import date
 
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.models import Account, ImportJob, Transaction, User
@@ -70,3 +70,23 @@ def load_synthetic_profile(
         )
     db.commit()
     return accounts
+
+
+DEMO_NAMES = {
+    "young": "Артём",
+    "family": "Семья Ивановых",
+    "freelancer": "Алина",
+    "dropout": "Максим",
+}
+
+
+def get_or_create_demo_user(db: Session, profile: str) -> User:
+    """Демо-пользователь профиля; при первом входе загружаются синтетические операции."""
+    email = f"demo-{profile}@moneyforecast.local"
+    user = db.scalar(select(User).where(User.email == email))
+    if user is None:
+        user = User(email=email, name=DEMO_NAMES.get(profile, "Демо"), profile=profile)
+        db.add(user)
+        db.commit()
+        load_synthetic_profile(db, user, profile)
+    return user

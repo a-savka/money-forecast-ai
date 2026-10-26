@@ -456,6 +456,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mock/family": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Family */
+        get: operations["get_family_mock_family_get"];
+        put?: never;
+        /** Create Family */
+        post: operations["create_family_mock_family_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mock/family/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Join Family */
+        post: operations["join_family_mock_family_join_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mock/family/demo-member": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Demo Member */
+        post: operations["add_demo_member_mock_family_demo_member_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mock/family/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Leave Family */
+        post: operations["leave_family_mock_family_leave_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -747,6 +816,57 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+        };
+        /** FamilyCreate */
+        FamilyCreate: {
+            /**
+             * Name
+             * @default Моя семья
+             */
+            name: string;
+        };
+        /** FamilyJoin */
+        FamilyJoin: {
+            /** Code */
+            code: string;
+        };
+        /** FamilyMemberOut */
+        FamilyMemberOut: {
+            /** User Id */
+            user_id: number;
+            /** Name */
+            name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "owner" | "member";
+            /** Balance */
+            balance: number;
+            /** Month Expense */
+            month_expense: number;
+            /** Is Me */
+            is_me: boolean;
+        };
+        /** FamilyOut */
+        FamilyOut: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Invite Code */
+            invite_code: string;
+            /**
+             * My Role
+             * @enum {string}
+             */
+            my_role: "owner" | "member";
+            /** Members */
+            members: components["schemas"]["FamilyMemberOut"][];
+            /** Total Balance */
+            total_balance: number;
+            /** Total Month Expense */
+            total_month_expense: number;
         };
         /** ForecastResult */
         ForecastResult: {
@@ -2041,6 +2161,132 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_family_mock_family_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyOut"] | null;
+                };
+            };
+        };
+    };
+    create_family_mock_family_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyOut"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    join_family_mock_family_join_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyJoin"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyOut"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_demo_member_mock_family_demo_member_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyOut"] | null;
+                };
+            };
+        };
+    };
+    leave_family_mock_family_leave_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyOut"] | null;
                 };
             };
         };

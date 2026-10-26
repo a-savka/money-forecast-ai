@@ -6,23 +6,15 @@
 import uuid
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
 
 from app.deps import CurrentUser, DbSession
 from app.models import User
 from app.schemas.auth import DemoLoginRequest, DemoProfile, TokenResponse, UserOut
 from app.security import create_access_token
 from app.seed.synthetic import PROFILES
-from app.services.demo_data import load_synthetic_profile
+from app.services.demo_data import get_or_create_demo_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-DEMO_NAMES = {
-    "young": "Артём",
-    "family": "Семья Ивановых",
-    "freelancer": "Алина",
-    "dropout": "Максим",
-}
 
 
 @router.get("/demo-profiles")
@@ -43,15 +35,7 @@ def demo_login(body: DemoLoginRequest, db: DbSession) -> TokenResponse:
     else:
         if body.profile not in PROFILES:
             raise HTTPException(404, "Неизвестный демо-профиль")
-        email = f"demo-{body.profile}@moneyforecast.local"
-        user = db.scalar(select(User).where(User.email == email))
-        if user is None:
-            user = User(
-                email=email, name=DEMO_NAMES.get(body.profile, "Демо"), profile=body.profile
-            )
-            db.add(user)
-            db.commit()
-            load_synthetic_profile(db, user, body.profile)
+        user = get_or_create_demo_user(db, body.profile)
     return TokenResponse(
         access_token=create_access_token(user.id), user=UserOut.model_validate(user)
     )
