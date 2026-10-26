@@ -88,6 +88,9 @@ class StrategyOutput:
     # Включает ли стратегия регулярные платежи и доходы сама (наивный H0)
     includes_recurring: bool = False
     expected_income_daily: np.ndarray | None = None
+    # Нерегулярные поступления (фриланс, подработки): ожидание и сценарии по дням
+    extra_income_mean: np.ndarray | None = None
+    extra_income_samples: np.ndarray | None = None  # shape (n_samples, days)
     explanation: str = ""
     meta: dict = field(default_factory=dict)
 

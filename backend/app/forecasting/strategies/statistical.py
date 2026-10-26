@@ -5,7 +5,8 @@
    затуханием (свежие недели важнее старых).
 3. Эффект «после зарплаты»: в первые дни после поступления дохода люди тратят больше.
 4. Сезонность: если есть история за прошлый год, учитываем отличие этого месяца от среднего.
-5. Неопределённость — бутстрэп реальных дневных трат того же дня недели.
+5. Нерегулярные поступления (фриланс): частота и суммы по истории за полгода.
+6. Неопределённость — бутстрэп реальных дневных трат того же дня недели.
 """
 
 from datetime import date, timedelta
@@ -18,6 +19,7 @@ from app.forecasting.base import ForecastContext, StrategyOutput
 WINDOW_DAYS = 120
 HALF_LIFE_DAYS = 45
 PAYDAY_WINDOW = 5
+IRREGULAR_WINDOW_DAYS = 180
 
 
 def _weights(dates: pd.DatetimeIndex, as_of: date) -> np.ndarray:
@@ -108,13 +110,19 @@ class StatisticalStrategy:
             base = float(np.dot(pool, p)) or 1.0
             samples[:, j] = ctx.rng.choice(pool, size=ctx.n_samples, p=p) * daily_mean[j] / base
 
+        extra_mean, extra_samples = self._irregular_income(ctx, len(days))
+
         by_category = {c: float(v) for c, v in zip(table.columns, per_cat.sum(axis=0), strict=True)}
         recurring_out = sum(-r.amount for r in ctx.recurring if r.amount < 0)
         return StrategyOutput(
             daily_mean=daily_mean,
             samples=samples,
             by_category=by_category,
-            explanation=self._explain(daily_mean, f_pay, recurring_out, ctx),
+            extra_income_mean=extra_mean,
+            extra_income_samples=extra_samples,
+            explanation=self._explain(
+                daily_mean, f_pay, recurring_out, ctx, float(extra_mean.sum())
+            ),
             meta={"payday_factor": round(f_pay, 2), "season": round(float(season.mean()), 2)},
         )
 
@@ -132,8 +140,36 @@ class StatisticalStrategy:
         return np.array([factors.get(d.month, 1.0) for d in days])
 
     @staticmethod
+    def _irregular_income(ctx: ForecastContext, n_days: int) -> tuple[np.ndarray, np.ndarray]:
+        """Нерегулярные поступления: число поступлений ~ Poisson, суммы — из истории."""
+        h = ctx.history
+        start = h.as_of - timedelta(days=IRREGULAR_WINDOW_DAYS)
+        df = h.txs[
+            (h.txs["amount"] > 0)
+            & (h.txs["kind"] == "income")
+            & (h.txs["date"] > pd.Timestamp(start))
+            & ~h.txs.index.isin(ctx.recurring_tx_index)
+        ]
+        window = min(IRREGULAR_WINDOW_DAYS, h.days_of_history)
+        if len(df) < 2 or window < 30:
+            return np.zeros(n_days), np.zeros((ctx.n_samples, n_days))
+        amounts = df["amount"].to_numpy()
+        rate = len(df) / window  # поступлений в день
+        mean = np.full(n_days, rate * amounts.mean())
+        counts = ctx.rng.poisson(rate, size=(ctx.n_samples, n_days))
+        samples = np.zeros((ctx.n_samples, n_days))
+        for k in range(1, int(counts.max()) + 1):
+            mask = counts >= k
+            samples[mask] += ctx.rng.choice(amounts, size=int(mask.sum()))
+        return mean, samples
+
+    @staticmethod
     def _explain(
-        daily_mean: np.ndarray, f_pay: float, recurring_out: float, ctx: ForecastContext
+        daily_mean: np.ndarray,
+        f_pay: float,
+        recurring_out: float,
+        ctx: ForecastContext,
+        irregular_income: float = 0.0,
     ) -> str:
         parts = [f"Переменные траты — около {daily_mean.mean():,.0f} ₽ в день".replace(",", " ")]
         n_rec = sum(1 for r in ctx.recurring if r.amount < 0)
@@ -142,5 +178,9 @@ class StatisticalStrategy:
         if f_pay > 1.1:
             parts.append(
                 f"после зарплаты вы тратите примерно на {round((f_pay - 1) * 100)}% больше обычного"
+            )
+        if irregular_income > 0:
+            parts.append(
+                f"ожидаем ≈ {irregular_income:,.0f} ₽ нерегулярных поступлений".replace(",", " ")
             )
         return "; ".join(parts) + "."

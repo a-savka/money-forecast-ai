@@ -24,8 +24,8 @@ def horizon_end(as_of: date, horizon: str) -> date:
     if horizon == "week":
         return as_of + timedelta(days=7)
     end = month_end(as_of)
-    # В последние дни месяца прогнозируем уже следующий месяц
-    return end if (end - as_of).days >= 3 else month_end(end + timedelta(days=1))
+    # В последнюю неделю месяца прогнозируем уже до конца следующего месяца
+    return end if (end - as_of).days >= 7 else month_end(end + timedelta(days=1))
 
 
 @router.get("/strategies")

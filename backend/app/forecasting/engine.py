@@ -17,7 +17,7 @@ from app.forecasting.schemas import (
 )
 
 # Пороги уровня риска по вероятности уйти в минус
-RISK_LEVELS = [(0.4, "high"), (0.15, "medium"), (0.0, "low")]
+RISK_LEVELS = [(0.35, "high"), (0.1, "medium"), (0.0, "low")]
 # Подушка безопасности при расчёте «сколько можно тратить в день»
 SAFETY_BUFFER = 0.05
 
@@ -61,10 +61,13 @@ def run_forecast(
     else:
         rec_expense, rec_income, events = schedule(ctx.recurring, days)
 
+    extra_mean = out.extra_income_mean if out.extra_income_mean is not None else np.zeros(len(days))
+    extra_samples = out.extra_income_samples if out.extra_income_samples is not None else 0
+
     # Сценарии баланса: переменные траты сэмплирует стратегия, регулярные — по расписанию
-    flows = rec_income - rec_expense - out.samples  # (n, days)
+    flows = rec_income + extra_samples - rec_expense - out.samples  # (n, days)
     paths = history.balance + np.cumsum(flows, axis=1)
-    mean_path = history.balance + np.cumsum(rec_income - rec_expense - out.daily_mean)
+    mean_path = history.balance + np.cumsum(rec_income + extra_mean - rec_expense - out.daily_mean)
 
     p10, p50, p90 = np.percentile(paths, [10, 50, 90], axis=0)
     total_expense_samples = out.samples.sum(axis=1) + rec_expense.sum()
@@ -77,10 +80,12 @@ def run_forecast(
         neg_days = [int(np.argmax(p < 0)) for p in paths if (p < 0).any()]
         first_negative = days[int(np.median(neg_days))]
 
-    expected_income = float(np.sum(rec_income))
+    expected_income = float(np.sum(rec_income) + np.sum(extra_mean))
     expected_expense = float(out.daily_mean.sum() + rec_expense.sum())
     remaining_days = len(days)
-    spendable = history.balance + expected_income - float(rec_expense.sum())
+    # Для «можно тратить в день» нерегулярный доход берём консервативно — наполовину
+    spendable = history.balance + float(np.sum(rec_income)) + 0.5 * float(np.sum(extra_mean))
+    spendable -= float(rec_expense.sum())
     spendable -= SAFETY_BUFFER * max(expected_income, history.balance, 0)
     safe_per_day = max(0.0, spendable / remaining_days)
 

@@ -69,3 +69,11 @@ def test_forecast_requires_data(client):
     token = client.post("/auth/demo-login", json={}).json()["access_token"]
     r = client.get("/forecast", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 409
+
+
+def test_horizon_end():
+    from app.api.forecast import horizon_end
+
+    assert horizon_end(date(2026, 10, 12), "month") == date(2026, 10, 31)
+    assert horizon_end(date(2026, 10, 26), "month") == date(2026, 11, 30)
+    assert horizon_end(date(2026, 10, 26), "week") == date(2026, 11, 2)
