@@ -1,6 +1,9 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/AppLayout'
+import { LoginPage } from '@/features/auth/LoginPage'
+import { TransactionsPage } from '@/features/transactions/TransactionsPage'
+import { MorePage } from '@/pages/MorePage'
 import { Placeholder } from '@/pages/Placeholder'
 import { useSession } from '@/store/session'
 
@@ -12,15 +15,16 @@ function RequireAuth() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Placeholder title="Вход" />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route index element={<Placeholder title="Главная" />} />
-          <Route path="transactions" element={<Placeholder title="Операции" />} />
+          <Route path="transactions" element={<TransactionsPage />} />
           <Route path="forecast" element={<Placeholder title="Прогноз" />} />
           <Route path="analytics" element={<Placeholder title="Аналитика" />} />
-          <Route path="more" element={<Placeholder title="Ещё" />} />
+          <Route path="more" element={<MorePage />} />
         </Route>
+        <Route path="onboarding" element={<Navigate to="/transactions" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
