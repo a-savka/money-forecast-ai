@@ -614,6 +614,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Track */
+        post: operations["track_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stats
+         * @description Сводка по всем пользователям: сколько событий и time-to-value онбординга.
+         */
+        get: operations["stats_events_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -966,6 +1003,29 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+        };
+        /** EventIn */
+        EventIn: {
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "onboarding_started" | "onboarding_done" | "forecast_viewed" | "paywall_shown" | "trial_started" | "subscription_upgraded";
+            /** Props */
+            props?: {
+                [key: string]: unknown;
+            };
+        };
+        /** EventStats */
+        EventStats: {
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Onboarding Median Seconds */
+            onboarding_median_seconds: number | null;
+            /** Onboarding Under 2 Min Share */
+            onboarding_under_2_min_share: number | null;
         };
         /** FamilyCreate */
         FamilyCreate: {
@@ -2592,6 +2652,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AlertOut"];
+                };
+            };
+        };
+    };
+    track_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stats_events_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventStats"];
                 };
             };
         };

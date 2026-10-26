@@ -11,6 +11,9 @@ interface SettingsState {
   /** Уведомления о риске разрыва, лимитах и платежах */
   notificationsEnabled: boolean
   setNotificationsEnabled: (v: boolean) => void
+  /** Цель из онбординга: no_gap | control | save */
+  goal: string | null
+  setGoal: (g: string) => void
 }
 
 export const useSettings = create<SettingsState>()(
@@ -22,6 +25,8 @@ export const useSettings = create<SettingsState>()(
       setRecommendationsMode: (recommendationsMode) => set({ recommendationsMode }),
       notificationsEnabled: true,
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
+      goal: null,
+      setGoal: (goal) => set({ goal }),
     }),
     { name: 'mf-settings' },
   ),

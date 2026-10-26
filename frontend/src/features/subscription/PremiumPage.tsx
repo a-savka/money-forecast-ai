@@ -1,9 +1,11 @@
 import { ArrowLeft, Check, Crown, Minus } from 'lucide-react'
+import { useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ErrorMessage, PageLoader } from '@/components/ui/feedback'
+import { track } from '@/lib/track'
 import { formatDate, formatMoney } from '@/lib/utils'
 
 import { useChangeSubscription, useSubscription } from './api'
@@ -32,6 +34,8 @@ export function PremiumPage() {
   const back = params.get('from') === 'forecast' ? '/forecast' : '/more'
   const { data: sub, isLoading } = useSubscription()
   const change = useChangeSubscription()
+
+  useEffect(() => track('paywall_shown', { from: params.get('from') }), [params])
 
   const act = (action: 'start_trial' | 'upgrade' | 'cancel') =>
     change.mutate(action, { onSuccess: () => action !== 'cancel' && navigate(back) })

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Check, CheckCircle2, Landmark, Loader2, ShieldCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { api, unwrap } from '@/api/client'
 import { useInvalidateFinance } from '@/api/hooks'
@@ -25,6 +25,8 @@ const STEPS = ['Подключаемся к банку', 'Загружаем о�
  */
 export function ConnectBankPage() {
   const navigate = useNavigate()
+  // Из онбординга возвращаемся на экран первого прогноза
+  const next = useSearchParams()[0].get('next') ?? '/'
   const invalidate = useInvalidateFinance()
   const [bank, setBank] = useState<MockBank | null>(null)
   const [step, setStep] = useState(0)
@@ -142,7 +144,7 @@ export function ConnectBankPage() {
           <CheckCircle2 className="h-12 w-12 text-emerald-500" />
           <h2 className="text-lg font-semibold">{connect.data.account_name} подключена</h2>
           <p className="text-slate-500">Загружено операций: {connect.data.imported}</p>
-          <Button className="w-full" onClick={() => navigate('/')}>
+          <Button className="w-full" onClick={() => navigate(next)}>
             Посмотреть прогноз
           </Button>
         </Card>

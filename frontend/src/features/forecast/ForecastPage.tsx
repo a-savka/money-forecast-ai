@@ -1,5 +1,5 @@
 import { Lock, TrendingUp } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useCategories } from '@/api/hooks'
@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/layout/AppLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
 import { EmptyState, ErrorMessage, PageLoader } from '@/components/ui/feedback'
+import { track } from '@/lib/track'
 import { cn, formatDate, formatMoney } from '@/lib/utils'
 
 import { useForecast, useStrategies } from './api'
@@ -25,6 +26,7 @@ export function ForecastPage() {
   const [chosen, setHorizon] = useState<Horizon>()
   const horizon = chosen ?? planHorizon
   const forecast = useForecast(horizon)
+  useEffect(() => track('forecast_viewed'), [])
   const strategy = useSettings((s) => s.strategy)
   const { data: strategies } = useStrategies()
   const { data: categories = [] } = useCategories()

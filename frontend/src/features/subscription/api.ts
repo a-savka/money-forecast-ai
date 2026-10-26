@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { api, unwrap } from '@/api/client'
 import type { Horizon, Subscription, SubscriptionAction } from '@/api/types'
+import { track } from '@/lib/track'
 import { useSession, type User } from '@/store/session'
 
 export function useSubscription() {
@@ -30,7 +31,9 @@ export function useChangeSubscription() {
   return useMutation({
     mutationFn: (action: SubscriptionAction) =>
       unwrap<Subscription>(api.POST('/mock/subscription', { body: { action } })),
-    onSuccess: async (data) => {
+    onSuccess: async (data, action) => {
+      if (action === 'start_trial') track('trial_started')
+      if (action === 'upgrade') track('subscription_upgraded')
       qc.setQueryData(['subscription'], data)
       const me = await unwrap<User>(api.GET('/auth/me'))
       setUser(me)

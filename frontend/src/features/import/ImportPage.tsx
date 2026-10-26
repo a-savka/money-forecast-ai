@@ -1,6 +1,6 @@
 import { ArrowLeft, CheckCircle2, FileSpreadsheet, Upload } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useAccounts, useCategoryMap } from '@/api/hooks'
 import type { ColumnMapping, ImportPreview, ImportResult } from '@/api/types'
@@ -242,6 +242,8 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function Done({ result }: { result: ImportResult }) {
   const navigate = useNavigate()
+  // Из онбординга возвращаемся на экран первого прогноза
+  const next = useSearchParams()[0].get('next') ?? '/'
   return (
     <Card className="flex flex-col items-center gap-3 py-8 text-center">
       <CheckCircle2 className="h-12 w-12 text-emerald-500" />
@@ -250,7 +252,7 @@ function Done({ result }: { result: ImportResult }) {
         Добавлено операций: {result.imported}
         {result.skipped > 0 && `, пропущено дублей: ${result.skipped}`}
       </p>
-      <Button className="w-full" onClick={() => navigate('/')}>
+      <Button className="w-full" onClick={() => navigate(next)}>
         Посмотреть прогноз
       </Button>
       <Button className="w-full" variant="secondary" onClick={() => navigate('/transactions')}>

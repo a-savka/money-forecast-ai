@@ -14,6 +14,8 @@ import { ImportPage } from '@/features/import/ImportPage'
 import { ReceiptPage } from '@/features/import/ReceiptPage'
 import { ScreenshotPage } from '@/features/import/ScreenshotPage'
 import { useAlertsNotifier } from '@/features/notifications/api'
+import { AhaPage } from '@/features/onboarding/AhaPage'
+import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { RecommendationsPage } from '@/features/recommendations/RecommendationsPage'
 import { TransactionsPage } from '@/features/transactions/TransactionsPage'
 import { PremiumPage } from '@/features/subscription/PremiumPage'
@@ -56,7 +58,8 @@ export default function App() {
         <Route path="premium" element={<PremiumPage />} />
         <Route path="family" element={<FamilyPage />} />
         <Route path="budgets" element={<BudgetsPage />} />
-        <Route path="onboarding" element={<Navigate to="/transactions" replace />} />
+        <Route path="onboarding" element={<OnboardingPage />} />
+        <Route path="onboarding/aha" element={<AhaPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
