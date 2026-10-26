@@ -144,6 +144,9 @@ def run_forecast(
         ),
         safe_to_spend_per_day=round(safe_per_day, 2),
         explanation=out.explanation,
+        model_info={
+            k: v for k, v in out.meta.items() if not k.startswith("per_") and k != "categories"
+        },
     )
 
 

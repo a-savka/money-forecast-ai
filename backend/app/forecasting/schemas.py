@@ -48,3 +48,5 @@ class ForecastResult(BaseModel):
     cash_gap: CashGap
     safe_to_spend_per_day: float
     explanation: str = ""
+    # Служебная информация о модели: LLM-провайдер, токены, поправки, fallback
+    model_info: dict = {}

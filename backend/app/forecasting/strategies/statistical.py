@@ -123,7 +123,13 @@ class StatisticalStrategy:
             explanation=self._explain(
                 daily_mean, f_pay, recurring_out, ctx, float(extra_mean.sum())
             ),
-            meta={"payday_factor": round(f_pay, 2), "season": round(float(season.mean()), 2)},
+            meta={
+                "payday_factor": round(f_pay, 2),
+                "season": round(float(season.mean()), 2),
+                # Для H2: поправки LLM применяются к матрице «день × категория»
+                "per_category_daily": per_cat,
+                "categories": list(table.columns),
+            },
         )
 
     @staticmethod
