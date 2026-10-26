@@ -8,6 +8,7 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { ConnectBankPage } from '@/features/import/ConnectBankPage'
 import { ImportPage } from '@/features/import/ImportPage'
 import { ReceiptPage } from '@/features/import/ReceiptPage'
+import { RecommendationsPage } from '@/features/recommendations/RecommendationsPage'
 import { TransactionsPage } from '@/features/transactions/TransactionsPage'
 import { MorePage } from '@/pages/MorePage'
 import { useSession } from '@/store/session'
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="import" element={<ImportPage />} />
         <Route path="connect-bank" element={<ConnectBankPage />} />
         <Route path="receipt" element={<ReceiptPage />} />
+        <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="onboarding" element={<Navigate to="/transactions" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

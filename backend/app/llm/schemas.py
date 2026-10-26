@@ -64,3 +64,23 @@ class ForecastAdjustment(BaseModel):
         else:
             summary = "Траты идут в обычном для вас темпе — прогноз совпадает со статистическим."
         return {"adjustments": adjustments, "summary": summary}
+
+
+class RewrittenRecommendation(BaseModel):
+    id: str
+    title: str
+    text: str
+
+
+class RecommendationsRewrite(BaseModel):
+    items: list[RewrittenRecommendation]
+
+    @classmethod
+    def mock_response(cls, payload: dict) -> dict:
+        # Мок сохраняет порядок и тексты правил, добавляя мягкую формулировку
+        return {
+            "items": [
+                {"id": r["id"], "title": r["title"], "text": r["text"]}
+                for r in payload.get("recommendations", [])
+            ]
+        }

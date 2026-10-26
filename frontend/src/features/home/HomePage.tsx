@@ -1,4 +1,4 @@
-import { CalendarClock, ChevronRight, Wallet } from 'lucide-react'
+import { CalendarClock, ChevronRight, Lightbulb, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { useAccounts } from '@/api/hooks'
@@ -8,6 +8,8 @@ import { NoForecast } from '@/features/forecast/ForecastPage'
 import { RiskBadge } from '@/features/forecast/RiskBadge'
 import { UpcomingList } from '@/features/forecast/UpcomingList'
 import { useForecast } from '@/features/forecast/api'
+import { RecommendationCard } from '@/features/recommendations/RecommendationCard'
+import { useRecommendations } from '@/features/recommendations/api'
 import { formatDate, formatMoney } from '@/lib/utils'
 import { useSession } from '@/store/session'
 
@@ -16,6 +18,7 @@ export function HomePage() {
   const forecast = useForecast('month')
   const { data: accounts = [] } = useAccounts()
   const f = forecast.data
+  const recs = useRecommendations().data?.items ?? []
 
   return (
     <div className="space-y-4 pt-4">
@@ -57,6 +60,24 @@ export function HomePage() {
               <p className="text-xl font-bold tabular-nums">{formatMoney(f.safe_to_spend_per_day)}</p>
             </div>
           </Card>
+
+          {recs.length > 0 && (
+            <Card>
+              <Link to="/recommendations" className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-1">
+                  <Lightbulb className="h-4 w-4" /> Советы
+                </CardTitle>
+                <span className="flex items-center text-sm text-brand-600">
+                  Все {recs.length} <ChevronRight className="h-4 w-4" />
+                </span>
+              </Link>
+              <ul className="divide-y divide-slate-100">
+                {recs.slice(0, 2).map((r) => (
+                  <RecommendationCard key={r.id} rec={r} compact />
+                ))}
+              </ul>
+            </Card>
+          )}
 
           <Card>
             <CardTitle className="mb-1 flex items-center gap-1">

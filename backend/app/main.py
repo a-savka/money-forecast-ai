@@ -4,7 +4,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import analytics, auth, dev, finance, forecast, health, imports
+from app.api import (
+    analytics,
+    auth,
+    dev,
+    finance,
+    forecast,
+    health,
+    imports,
+    recommendations,
+)
 from app.config import get_settings
 from app.db import SessionLocal
 from app.services.categories import ensure_system_categories
@@ -39,6 +48,7 @@ def create_app(*, seed_on_startup: bool = True) -> FastAPI:
         imports.router,
         analytics.router,
         forecast.router,
+        recommendations.router,
         dev.router,
     ):
         app.include_router(router)

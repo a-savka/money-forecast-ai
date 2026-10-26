@@ -19,3 +19,6 @@ export type MonthPoint = S['MonthPoint']
 export type ForecastResult = S['ForecastResult']
 export type StrategyInfo = S['StrategyInfo']
 export type Horizon = 'week' | 'month'
+export type Recommendation = S['Recommendation']
+export type RecommendationsOut = S['RecommendationsOut']
+export type RecommendationsMode = 'rules' | 'llm'

@@ -367,6 +367,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/recommendations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Recommendations */
+        get: operations["recommendations_recommendations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dev/seed": {
         parameters: {
             query?: never;
@@ -621,6 +638,13 @@ export interface components {
              * @default
              */
             explanation: string;
+            /**
+             * Model Info
+             * @default {}
+             */
+            model_info: {
+                [key: string]: unknown;
+            };
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -758,6 +782,42 @@ export interface components {
         ReceiptQRRequest: {
             /** Qr */
             qr: string;
+        };
+        /** Recommendation */
+        Recommendation: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Text */
+            text: string;
+            /** Amount Effect */
+            amount_effect: number;
+            /** Category */
+            category?: string | null;
+            /** Priority */
+            priority: number;
+            /**
+             * Source
+             * @default rule
+             */
+            source: string;
+        };
+        /** RecommendationsOut */
+        RecommendationsOut: {
+            /** Items */
+            items: components["schemas"]["Recommendation"][];
+            /** Mode */
+            mode: string;
+            /**
+             * Info
+             * @default {}
+             */
+            info: {
+                [key: string]: unknown;
+            };
         };
         /** SeedRequest */
         SeedRequest: {
@@ -1605,6 +1665,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ForecastResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recommendations_recommendations_get: {
+        parameters: {
+            query?: {
+                strategy?: string;
+                mode?: "rules" | "llm";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecommendationsOut"];
                 };
             };
             /** @description Validation Error */
