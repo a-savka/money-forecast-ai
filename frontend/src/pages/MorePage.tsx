@@ -1,4 +1,4 @@
-import { ChevronRight, Crown, FlaskConical, Gauge, LogOut, Users, type LucideIcon } from 'lucide-react'
+import { Bell, ChevronRight, Crown, FlaskConical, Gauge, LogOut, Users, type LucideIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { PageHeader } from '@/components/layout/AppLayout'
@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useBudgets } from '@/features/budgets/api'
 import { useFamily } from '@/features/family/api'
+import { useTestNotification } from '@/features/notifications/api'
 import { useSubscription } from '@/features/subscription/api'
 import { useSession } from '@/store/session'
+import { useSettings } from '@/store/settings'
 
 interface MenuItem {
   to: string
@@ -21,6 +23,9 @@ export function MorePage() {
   const { user, logout } = useSession()
   const navigate = useNavigate()
   const { data: sub } = useSubscription()
+  const notificationsOn = useSettings((s) => s.notificationsEnabled)
+  const setNotifications = useSettings((s) => s.setNotificationsEnabled)
+  const testPush = useTestNotification()
   const { data: family } = useFamily()
   const { data: budgets = [] } = useBudgets()
   const atRisk = budgets.filter((b) => b.status !== 'ok').length
@@ -82,6 +87,27 @@ export function MorePage() {
             </li>
           ))}
         </ul>
+      </Card>
+      <Card className="mb-4 space-y-3">
+        <label className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-50 text-rose-500">
+            <Bell className="h-5 w-5" />
+          </span>
+          <span className="flex-1">
+            <span className="block font-medium">Уведомления</span>
+            <span className="block text-sm text-slate-500">Риск уйти в минус, лимиты, крупные платежи</span>
+          </span>
+          <input
+            type="checkbox"
+            role="switch"
+            className="h-5 w-9 cursor-pointer accent-brand-600"
+            checked={notificationsOn}
+            onChange={(e) => setNotifications(e.target.checked)}
+          />
+        </label>
+        <Button variant="secondary" size="sm" className="w-full" onClick={() => testPush.mutate()} disabled={testPush.isPending}>
+          Отправить тестовое уведомление
+        </Button>
       </Card>
       <Button
         variant="secondary"

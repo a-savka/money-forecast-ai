@@ -5,11 +5,17 @@ from datetime import date
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import func, select
 
+from app.api.forecast import default_horizon, horizon_end
 from app.deps import CurrentUser, DbSession
+from app.forecasting.data import history_from_db
+from app.forecasting.engine import run_forecast
+from app.forecasting.registry import DEFAULT_STRATEGY, STRATEGIES
 from app.models import Budget, Category, Family, User
+from app.schemas.alerts import AlertOut
 from app.schemas.budgets import BudgetIn, BudgetOut, BudgetSuggestion
 from app.schemas.family import FamilyCreate, FamilyJoin, FamilyMemberOut, FamilyOut
 from app.schemas.subscription import SubscriptionAction, SubscriptionOut
+from app.services import alerts as alerts_service
 from app.services import budgets as bud
 from app.services import family as fam
 from app.services import subscription as sub
@@ -145,3 +151,24 @@ def delete_budget(budget_id: int, user: CurrentUser, db: DbSession) -> list[Budg
     db.delete(budget)
     db.commit()
     return list_budgets(user, db)
+
+
+@router.get("/notifications")
+def notifications(
+    user: CurrentUser, db: DbSession, strategy: str = DEFAULT_STRATEGY
+) -> list[AlertOut]:
+    """Текущие алерты пользователя (клиент показывает новые как локальные уведомления)."""
+    today = date.today()
+    if strategy not in STRATEGIES:
+        strategy = DEFAULT_STRATEGY
+    history = history_from_db(db, user, today)
+    forecast = None
+    if not history.txs.empty:
+        end = horizon_end(today, default_horizon(user))
+        forecast = run_forecast(STRATEGIES[strategy], history, end, seed=user.id)
+    return [AlertOut(**vars(a)) for a in alerts_service.build_alerts(db, user, forecast, today)]
+
+
+@router.post("/push/test")
+def push_test(user: CurrentUser) -> AlertOut:
+    return AlertOut(**vars(alerts_service.sample_alert(date.today())))

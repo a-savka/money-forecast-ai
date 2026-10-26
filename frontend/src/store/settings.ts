@@ -8,6 +8,9 @@ interface SettingsState {
   /** Формулировки советов: шаблоны правил или переписанные LLM */
   recommendationsMode: 'rules' | 'llm'
   setRecommendationsMode: (m: 'rules' | 'llm') => void
+  /** Уведомления о риске разрыва, лимитах и платежах */
+  notificationsEnabled: boolean
+  setNotificationsEnabled: (v: boolean) => void
 }
 
 export const useSettings = create<SettingsState>()(
@@ -17,6 +20,8 @@ export const useSettings = create<SettingsState>()(
       setStrategy: (strategy) => set({ strategy }),
       recommendationsMode: 'rules',
       setRecommendationsMode: (recommendationsMode) => set({ recommendationsMode }),
+      notificationsEnabled: true,
+      setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
     }),
     { name: 'mf-settings' },
   ),

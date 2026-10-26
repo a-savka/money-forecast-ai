@@ -1,6 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/AppLayout'
+import { Toaster } from '@/components/Toaster'
 import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { BudgetsPage } from '@/features/budgets/BudgetsPage'
 import { ExperimentsPage } from '@/features/experiments/ExperimentsPage'
@@ -12,15 +13,26 @@ import { ConnectBankPage } from '@/features/import/ConnectBankPage'
 import { ImportPage } from '@/features/import/ImportPage'
 import { ReceiptPage } from '@/features/import/ReceiptPage'
 import { ScreenshotPage } from '@/features/import/ScreenshotPage'
+import { useAlertsNotifier } from '@/features/notifications/api'
 import { RecommendationsPage } from '@/features/recommendations/RecommendationsPage'
 import { TransactionsPage } from '@/features/transactions/TransactionsPage'
 import { PremiumPage } from '@/features/subscription/PremiumPage'
 import { MorePage } from '@/pages/MorePage'
 import { useSession } from '@/store/session'
 
+function AuthedShell() {
+  useAlertsNotifier()
+  return (
+    <>
+      <Toaster />
+      <Outlet />
+    </>
+  )
+}
+
 function RequireAuth() {
   const token = useSession((s) => s.token)
-  return token ? <Outlet /> : <Navigate to="/login" replace />
+  return token ? <AuthedShell /> : <Navigate to="/login" replace />
 }
 
 export default function App() {
